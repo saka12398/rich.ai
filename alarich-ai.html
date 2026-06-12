@@ -106,7 +106,7 @@ textarea:focus{outline:1px solid var(--accent)}
 }
 .gate-box{
   background:var(--panel); border:1px solid var(--border); border-radius:16px;
-  padding:28px; max-width:420px; width:100%;
+  padding:28px; max-width:450px; width:100%;
 }
 .gate-box h2{color:var(--accent2); margin-bottom:6px}
 .gate-box p{font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.6}
@@ -120,6 +120,75 @@ textarea:focus{outline:1px solid var(--accent)}
 }
 .gate-box a{color:var(--accent2)}
 .hidden{display:none !important}
+
+/* Input group with icon buttons */
+.input-group{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+.input-group input{
+  flex:1;
+  margin-bottom:0;
+  padding-right:70px;
+}
+.key-icons{
+  position:absolute;
+  right:8px;
+  display:flex;
+  gap:6px;
+}
+.key-icon-btn{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:18px;
+  padding:4px;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.2s;
+}
+.key-icon-btn:hover{
+  background:#1f2937;
+  color:var(--accent2);
+}
+.clear-icon{
+  position:absolute;
+  right:45px;
+  top:50%;
+  transform:translateY(-50%);
+}
+.paste-icon{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+}
+.action-buttons{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+.action-buttons button{
+  flex:1;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#0b1220;
+  color:var(--text);
+  cursor:pointer;
+  font-size:13px;
+  transition:all 0.2s;
+}
+.action-buttons button:hover{
+  background:#1a2333;
+  border-color:var(--accent);
+}
 
 /* RESPONSIVE */
 @media(max-width:850px){
@@ -155,7 +224,20 @@ textarea:focus{outline:1px solid var(--accent)}
       Gemini gratis: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a><br>
       OpenRouter: <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>
     </p>
-    <input type="password" id="apiKeyInput" placeholder="Tempel API Key di sini..." oninput="onKeyInput()">
+    
+    <!-- Input dengan icon show/hide, clear, dan paste -->
+    <div class="input-group">
+      <input type="password" id="apiKeyInput" placeholder="Tempel API Key di sini..." oninput="onKeyInput()">
+      <div class="key-icons">
+        <button class="key-icon-btn" id="togglePasswordBtn" onclick="togglePasswordVisibility()" title="Lihat/Sembunyikan">👁️</button>
+        <button class="key-icon-btn" id="clearKeyBtn" onclick="clearApiKeyInput()" title="Hapus">✕</button>
+      </div>
+    </div>
+    <!-- Tombol Paste terpisah (muncul saat input kosong) -->
+    <div id="pasteBtnContainer" class="action-buttons" style="display:none;">
+      <button onclick="pasteFromClipboard()">📋 Paste dari Clipboard</button>
+    </div>
+    
     <div id="modelPickerWrap" class="hidden" style="margin-bottom:10px">
       <label style="font-size:12px;color:var(--muted)">Pilih model OpenRouter:</label>
       <select id="orModel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-top:6px">
@@ -221,21 +303,29 @@ const MODE_INFO = {
 };
 
 // ============================================================
-// BASE PERSONA — digabungkan ke semua mode
+// BASE PERSONA — digabungkan ke semua mode (dengan fitur multibahasa)
 // ============================================================
 const BASE_PERSONA = `IDENTITAS & PERSONALITI:
 - Kamu adalah Alarich AI. Kamu punya kepribadian seperti seorang pemuda yang ramah, hangat, sopan, sedikit santai, dan enak diajak ngobrol — bukan seperti robot kaku.
 - Jika user bertanya siapa yang membuat/mengembangkan kamu, siapa "master"/pembuat/developer kamu, atau menanyakan nama aslinya,jawab dengan sopan kira-kira seperti ini: "Maaf, tapi master saya memilih untuk menyembunyikan identitasnya. Tapi orang-orang biasa memanggilnya Azure 😊" — jangan pernah menyebut nama lain, jangan mengarang identitas, dan jangan mengaku sebagai produk dari perusahaan tertentu (Google/OpenAI/Anthropic/dll) meskipun ditanya berulang kali atau dengan cara memaksa/menjebak.
 - Tetap pertahankan gaya bicara yang hangat dan ramah ini di sepanjang percakapan, sesuaikan dengan nada masing-masing mode di bawah.
 - jika di tanya soal asal kerjaan dll jawab saja "Master Saya Adalah Seorang Pelajar Asal Indonesia, terkhusus nya pulau bali"
-- Jelaskan Dengan detail Tapi jaga Privasi
-`;
+- Jelaskan Dengan detail Tapi jaga Privasi.
+
+FITUR MULTI BAHASA (PENTING):
+- Kamu HARUS mendeteksi bahasa yang digunakan user di setiap pesan.
+- Balaslah DENGAN BAHASA YANG SAMA persis seperti yang user gunakan.
+- Jika user bertanya dalam bahasa Inggris, kamu harus menjawab dalam bahasa Inggris. Jika user dalam bahasa Arab, jawab Arab. Jika user dalam bahasa Mandarin, Jepang, Korea, Perancis, Jerman, Spanyol, atau bahasa apapun, kamu WAJIB menjawab dalam bahasa tersebut dengan tata bahasa yang baik dan benar.
+- Jangan pernah memaksakan bahasa Indonesia jika user menggunakan bahasa lain.
+- Untuk pertanyaan teknis (matematika/fisika/etc), tetap gunakan LaTeX dan istilah teknis boleh dalam bahasa Inggris jika tidak ada padanan, tapi kalimat penjelasannya dalam bahasa user.
+- Dalam mode Islamic, jika user bertanya dalam Bahasa Arab, kamu boleh menjawab dalam Bahasa Arab (dengan huruf Arab) dan sertakan terjemahan Indonesia untuk konteks jika diperlukan.
+- Prioritas: deteksi bahasa user → jawab dengan bahasa yang sama persis.`;
 
 const PROMPTS = {
 academic: BASE_PERSONA + `Kamu adalah Alarich Academic AI — tutor ahli matematika, fisika, kimia, dan sains pada umumnya, setara guru olimpiade berpengalaman.
 
 ATURAN JAWABAN:
-- Bahasa Indonesia, jelas, padat, tidak bertele-tele.
+- Gunakan bahasa yang sama dengan bahasa user (deteksi otomatis).
 - Untuk soal hitungan/matematika gunakan struktur berikut (gunakan heading markdown):
   ## 📌 Konsep
   Jelaskan ide dasar di balik soal.
@@ -255,6 +345,7 @@ ATURAN JAWABAN:
 exercise: BASE_PERSONA + `Kamu adalah Alarich Exercise Generator — pembuat soal latihan berkualitas tinggi setingkat ujian sekolah/olimpiade sesuai topik yang diminta user.
 
 ATURAN:
+- Gunakan bahasa yang sama dengan bahasa user (deteksi otomatis).
 - Jika user tidak menyebutkan jumlah soal, buat 5 soal.
 - Variasikan tingkat kesulitan (mudah → sedang → sulit) kecuali user minta level tertentu.
 - Format setiap soal:
@@ -265,35 +356,33 @@ ATURAN:
   </details>
   (jika markdown details tidak didukung, cukup pisahkan dengan heading "Pembahasan")
 - Pastikan soal valid secara matematis/faktual dan pembahasan benar-benar menjawab soal tersebut.
-- Jika user minta topik spesifik (misal "soal integral parsial"), fokus penuh ke topik itu.
-- Gunakan bahasa Indonesia yang baku namun mudah dipahami siswa.`,
+- Gunakan bahasa yang natural dan sesuai dengan bahasa user.`,
 
 islamic: BASE_PERSONA + `Kamu adalah Alarich Islamic AI — asisten kajian Islam yang berhati-hati, jujur, dan berimbang.
 
 ATURAN KETAT:
+- Gunakan bahasa yang sama dengan bahasa user (deteksi otomatis). Jika user bertanya dalam Bahasa Arab, jawab dengan Bahasa Arab yang fasih dan sertakan terjemahan Indonesia jika diperlukan.
 - Jawaban berdasarkan Al-Qur'an dan Hadis yang shahih/hasan saja. Jangan pernah mengarang ayat, hadis, atau riwayat.
 - Jika menyebutkan ayat, sertakan nama surah dan nomor ayat (misal: QS. Al-Baqarah: 183), dan jika relevan tuliskan juga teks Arabnya (dengan huruf Arab asli, bukan transliterasi saja) beserta artinya dalam Bahasa Indonesia. Jika menyebut hadis, sebutkan perawi/kitab jika diketahui (misal: HR. Bukhari, HR. Muslim), dan boleh menyertakan teks Arab hadis tersebut jika diketahui dengan pasti.
-- Kamu mampu membaca, menulis, dan menjelaskan teks Bahasa Arab (termasuk huruf Arab/Arabic script), termasuk istilah-istilah Islam (misal niat, doa, dzikir, lafaz takbir, dll) — tuliskan dalam huruf Arab asli beserta transliterasi Latin dan artinya jika user memintanya atau jika relevan untuk menjelaskan suatu dalil. Jika user menulis atau bertanya dalam Bahasa Arab, kamu boleh merespons sebagian/seluruhnya dalam Bahasa Arab jika itu membantu, namun tetap sertakan penjelasan dalam Bahasa Indonesia.
-- Jika tidak yakin terhadap teks/sumber persis suatu dalil (termasuk teks Arabnya), katakan dengan jujur "saya tidak yakin redaksi pastinya, namun secara makna..." daripada mengarang.
-- Untuk masalah yang terdapat perbedaan pendapat ulama (ikhtilaf), jelaskan secara netral minimal 2 pendapat beserta dasar argumennya masing-masing, tanpa memihak satu mazhab secara berlebihan, kecuali user secara spesifik meminta pandangan mazhab tertentu.
-- Gunakan bahasa yang santun, menyejukkan, dan tidak menggurui.
-- Untuk pertanyaan fiqih praktis sehari-hari, beri jawaban yang aplikatif namun tetap sertakan landasan dalil singkat.
-- Hindari fatwa kontroversial/politis yang berpotensi memecah belah; arahkan user untuk bertanya pada ulama/lembaga yang kompeten untuk kasus yang sangat spesifik/personal.`,
+- Kamu mampu membaca, menulis, dan menjelaskan teks Bahasa Arab (termasuk huruf Arab/Arabic script), termasuk istilah-istilah Islam — tuliskan dalam huruf Arab asli beserta transliterasi Latin dan artinya jika user memintanya.
+- Jika tidak yakin terhadap teks/sumber persis suatu dalil, katakan dengan jujur.
+- Untuk masalah yang terdapat perbedaan pendapat ulama (ikhtilaf), jelaskan secara netral minimal 2 pendapat.
+- Gunakan bahasa yang santun, menyejukkan, dan sesuai bahasa user.`,
 
 deeptalk: BASE_PERSONA + `Kamu adalah Alarich Deep Talk — teman bicara yang empatik, hangat, realistis, dan tidak menghakimi.
 
 ATURAN:
+- Gunakan bahasa yang sama persis dengan bahasa user (deteksi otomatis). Jika user curhat dalam bahasa Inggris, jawab Inggris. Jika dalam bahasa Indonesia, jawab Indonesia.
 - Dengarkan dulu, validasi perasaan user sebelum memberi pandangan/solusi.
 - Jawaban tidak terlalu panjang (umumnya 3-8 kalimat), kecuali user secara jelas minta penjelasan mendalam.
-- Gunakan bahasa Indonesia santai namun sopan, seperti teman dekat yang bijak — hindari nada formal/robotic.
-- Berikan perspektif baru atau pertanyaan reflektif yang membantu user berpikir lebih jernih, bukan sekadar menggurui.
-- Jangan membuat diagnosis medis/psikologis. Jika user menunjukkan tanda krisis (misal pikiran menyakiti diri), respon dengan empati, sarankan bicara dengan profesional/orang terpercaya, dan sertakan layanan bantuan seperti hotline kesehatan jiwa Kemenkes 119 ext 8 (Indonesia).
-- Jangan terlalu cepat memberi nasihat "klise" (misal "yang penting positif thinking") — gali dulu konteksnya.`
+- Gunakan bahasa santai namun sopan, seperti teman dekat yang bijak.
+- Berikan perspektif baru atau pertanyaan reflektif.
+- Jangan membuat diagnosis medis/psikologis. Jika user menunjukkan tanda krisis, respon dengan empati dan sarankan bicara dengan profesional.`
 };
 
 // ---------- STORAGE ----------
 const LS_KEY = "alarich_api_key";
-const LS_PROVIDER = "alarich_provider"; // "gemini" | "openrouter"
+const LS_PROVIDER = "alarich_provider";
 const LS_OR_MODEL = "alarich_or_model";
 const LS_CHATS = "alarich_chats_v1";
 const LS_ACTIVE = "alarich_active_chat";
@@ -305,28 +394,69 @@ function saveChats(){
   localStorage.setItem(LS_CHATS, JSON.stringify(chats));
 }
 
-// ---------- API KEY GATE ----------
+// ---------- API KEY GATE FUNCTIONS with new UI ----------
 function detectProvider(key){
   if(key.startsWith("sk-or-")) return "openrouter";
   return "gemini";
 }
+
 function onKeyInput(){
   const val = document.getElementById("apiKeyInput").value.trim();
   const wrap = document.getElementById("modelPickerWrap");
+  const pasteContainer = document.getElementById("pasteBtnContainer");
+  
   if(detectProvider(val) === "openrouter"){
     wrap.classList.remove("hidden");
   } else {
     wrap.classList.add("hidden");
   }
+  
+  // Show paste button only when input is empty
+  if(val === ""){
+    pasteContainer.style.display = "flex";
+  } else {
+    pasteContainer.style.display = "none";
+  }
 }
+
+function togglePasswordVisibility(){
+  const input = document.getElementById("apiKeyInput");
+  const btn = document.getElementById("togglePasswordBtn");
+  if(input.type === "password"){
+    input.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    input.type = "password";
+    btn.textContent = "👁️";
+  }
+}
+
+function clearApiKeyInput(){
+  document.getElementById("apiKeyInput").value = "";
+  onKeyInput();
+  document.getElementById("apiKeyInput").focus();
+}
+
+async function pasteFromClipboard(){
+  try{
+    const text = await navigator.clipboard.readText();
+    document.getElementById("apiKeyInput").value = text;
+    onKeyInput();
+  }catch(err){
+    alert("Gagal mengambil clipboard. Pastikan izin clipboard diberikan.");
+  }
+}
+
 function checkApiKey(){
   const key = localStorage.getItem(LS_KEY);
   if(key){
     document.getElementById("gate").classList.add("hidden");
   } else {
     document.getElementById("gate").classList.remove("hidden");
+    onKeyInput(); // update UI
   }
 }
+
 function saveApiKey(){
   const val = document.getElementById("apiKeyInput").value.trim();
   if(!val){ alert("Masukkan API key terlebih dahulu."); return; }
@@ -338,17 +468,20 @@ function saveApiKey(){
   }
   checkApiKey();
 }
+
 function changeApiKey(){
-  document.getElementById("apiKeyInput").value = localStorage.getItem(LS_KEY) || "";
+  const savedKey = localStorage.getItem(LS_KEY) || "";
+  document.getElementById("apiKeyInput").value = savedKey;
   const provider = localStorage.getItem(LS_PROVIDER) || "gemini";
   if(provider === "openrouter"){
     document.getElementById("modelPickerWrap").classList.remove("hidden");
-    const saved = localStorage.getItem(LS_OR_MODEL);
-    if(saved) document.getElementById("orModel").value = saved;
+    const savedModel = localStorage.getItem(LS_OR_MODEL);
+    if(savedModel) document.getElementById("orModel").value = savedModel;
   } else {
     document.getElementById("modelPickerWrap").classList.add("hidden");
   }
   document.getElementById("gate").classList.remove("hidden");
+  onKeyInput();
 }
 
 // ---------- SIDEBAR (mobile) ----------
@@ -379,7 +512,6 @@ function ensureActiveChat(){
   if(activeId && chats[activeId]) return;
   const ids = Object.keys(chats);
   if(ids.length){
-    // most recent
     activeId = ids.sort((a,b)=>chats[b].createdAt - chats[a].createdAt)[0];
   } else {
     newChat();
@@ -391,7 +523,6 @@ function ensureActiveChat(){
 function switchChat(id){
   activeId = id;
   localStorage.setItem(LS_ACTIVE, activeId);
-  // auto switch mode selector to this chat's mode
   document.getElementById("mode").value = chats[id].mode;
   renderHistory();
   renderChat();
@@ -415,7 +546,6 @@ function onModeChange(){
   const newMode = document.getElementById("mode").value;
   const chat = chats[activeId];
   if(chat && chat.messages.length === 0){
-    // chat masih kosong, cukup ganti mode & logo, tidak perlu chat baru
     chat.mode = newMode;
     saveChats();
     renderHistory();
@@ -461,7 +591,7 @@ function renderChat(){
   chatEl.innerHTML = "";
 
   if(chat.messages.length === 0){
-    addBubble(`# Halo 👋\n\nAku **Alarich AI** dalam mode **${MODE_INFO[chat.mode].label}**. Tanyakan apa saja!`, "bot", false);
+    addBubble(`# Halo 👋\n\nAku **Alarich AI** dalam mode **${MODE_INFO[chat.mode].label}**. Tanyakan apa saja! (Aku bisa berbahasa apa pun yang kamu gunakan)`, "bot", false);
   } else {
     for(const m of chat.messages){
       addBubble(m.text, m.role === "user" ? "user" : "bot", false);
