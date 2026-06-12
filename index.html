@@ -17,10 +17,16 @@ box-sizing:border-box;
 font-family:'Poppins',sans-serif;
 }
 
+html,body{
+width:100%;
+height:100%;
+}
+
 body{
 min-height:100vh;
-overflow-x:hidden;
-background:linear-gradient(
+overflow:hidden;
+background:
+linear-gradient(
 135deg,
 #020617,
 #0f172a,
@@ -31,27 +37,30 @@ justify-content:center;
 align-items:center;
 padding:20px;
 position:relative;
+transition:.5s ease;
 }
 
-/* Background */
+/* Background Glow */
 
 body::before{
 content:"";
 position:absolute;
-width:700px;
-height:700px;
+width:800px;
+height:800px;
+border-radius:50%;
 background:
-radial-gradient(circle,#2563eb55,transparent 70%);
+radial-gradient(circle,#2563eb40,transparent 70%);
 animation:spin 20s linear infinite;
 }
 
 body::after{
 content:"";
 position:absolute;
-width:500px;
-height:500px;
+width:600px;
+height:600px;
+border-radius:50%;
 background:
-radial-gradient(circle,#7c3aed55,transparent 70%);
+radial-gradient(circle,#7c3aed40,transparent 70%);
 animation:spinReverse 25s linear infinite;
 }
 
@@ -77,28 +86,27 @@ transform:rotate(0deg);
 width:100%;
 max-width:1200px;
 position:relative;
-z-index:2;
+z-index:10;
 text-align:center;
 }
 
 /* Logo */
 
 .logo{
-font-size:clamp(2rem,5vw,4rem);
+font-size:clamp(2.2rem,6vw,4.5rem);
 font-weight:700;
 color:white;
 margin-bottom:10px;
-animation:fadeUp 1s ease;
+text-shadow:0 0 25px #3b82f6;
 }
 
 .subtitle{
-color:#94a3b8;
 font-size:clamp(.9rem,2vw,1.2rem);
+color:#94a3b8;
 margin-bottom:50px;
-animation:fadeUp 1.3s ease;
 }
 
-/* Cards */
+/* Grid */
 
 .cards{
 display:grid;
@@ -107,36 +115,53 @@ repeat(auto-fit,minmax(280px,1fr));
 gap:25px;
 }
 
+/* Card */
+
 .card{
-background:rgba(255,255,255,0.05);
+background:
+rgba(255,255,255,0.05);
+
 backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,0.1);
+
+border:
+1px solid rgba(255,255,255,.08);
+
 border-radius:25px;
+
 padding:35px 25px;
+
 cursor:pointer;
-transition:.4s;
+
 position:relative;
+
 overflow:hidden;
-min-height:280px;
+
+transition:.4s ease;
 
 display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
+
+min-height:280px;
 }
 
 .card:hover{
-transform:translateY(-10px);
-box-shadow:
-0 0 40px rgba(37,99,235,.4);
+transform:
+translateY(-10px)
+scale(1.02);
+
 border-color:#60a5fa;
+
+box-shadow:
+0 0 40px rgba(37,99,235,.35);
 }
 
 .card::before{
 content:"";
 position:absolute;
-top:-100%;
-left:-100%;
+top:-150%;
+left:-150%;
 width:300%;
 height:300%;
 
@@ -144,11 +169,12 @@ background:
 linear-gradient(
 45deg,
 transparent,
-rgba(255,255,255,.1),
+rgba(255,255,255,.08),
 transparent
 );
 
 transform:rotate(25deg);
+
 transition:1s;
 }
 
@@ -158,7 +184,7 @@ left:100%;
 }
 
 .icon{
-font-size:70px;
+font-size:75px;
 margin-bottom:15px;
 }
 
@@ -170,29 +196,18 @@ margin-bottom:10px;
 }
 
 .desc{
-font-size:15px;
-line-height:1.7;
 color:#cbd5e1;
-max-width:250px;
+line-height:1.7;
+font-size:15px;
+max-width:260px;
 }
+
+/* Footer */
 
 .footer{
 margin-top:40px;
-color:#64748b;
 font-size:14px;
-}
-
-/* Loading Animation */
-
-@keyframes fadeUp{
-from{
-opacity:0;
-transform:translateY(40px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+color:#64748b;
 }
 
 /* Mobile */
@@ -215,6 +230,10 @@ font-size:60px;
 font-size:24px;
 }
 
+.subtitle{
+margin-bottom:30px;
+}
+
 }
 
 </style>
@@ -233,14 +252,12 @@ Pilih aplikasi yang ingin dibuka
 
 <div class="cards">
 
-<!-- AI -->
+<!-- ALARICH -->
 
 <div class="card"
 onclick="openPage('alarich-ai.html')">
 
-<div class="icon">
-🤖
-</div>
+<div class="icon">🤖</div>
 
 <div class="title">
 Alarich AI
@@ -248,40 +265,35 @@ Alarich AI
 
 <div class="desc">
 AI Akademik, Deep Talk,
-Latihan Soal, dan Islamic Assistant.
+Latihan Soal dan Islamic Assistant.
 </div>
 
 </div>
 
-<!-- GAME 1 -->
+<!-- GAMEE PART 1 -->
 
 <div class="card"
 onclick="openPage('gamee.html')">
 
-<div class="icon">
-🎮
-</div>
+<div class="icon">🎮</div>
 
 <div class="title">
 Gamee Part 1
 </div>
 
 <div class="desc">
-Kumpulan game,
-hiburan dan tantangan
-bagian pertama.
+Kumpulan game, hiburan,
+dan tantangan bagian pertama.
 </div>
 
 </div>
 
-<!-- GAME 2 -->
+<!-- GAMEE PART 2 -->
 
 <div class="card"
 onclick="openPage('game.html')">
 
-<div class="icon">
-🏆
-</div>
+<div class="icon">🏆</div>
 
 <div class="title">
 Gamee Part 2
@@ -305,38 +317,44 @@ dan game tambahan.
 
 <script>
 
-function openPage(page){
-
 document.body.style.opacity="0";
-
-setTimeout(()=>{
-
-window.location.href=page;
-
-},400);
-
-}
 
 window.addEventListener("load",()=>{
 
-document.querySelectorAll(".card")
-.forEach((card,index)=>{
+document.body.style.opacity="1";
+
+const cards=document.querySelectorAll(".card");
+
+cards.forEach((card,index)=>{
 
 card.style.opacity="0";
 card.style.transform="translateY(50px)";
 
 setTimeout(()=>{
 
-card.style.transition=".6s";
+card.style.transition=".7s";
 
 card.style.opacity="1";
-card.style.transform="translateY(0)";
+card.style.transform="translateY(0px)";
 
-},300 + (index*200));
+},300+(index*200));
+
+});
 
 });
 
-});
+function openPage(page){
+
+document.body.style.opacity="0";
+document.body.style.transform="scale(.98)";
+
+setTimeout(()=>{
+
+window.location.href=page;
+
+},500);
+
+}
 
 </script>
 
