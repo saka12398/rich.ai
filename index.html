@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Alarich Hub</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+height:100vh;
+overflow:hidden;
+background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
+display:flex;
+justify-content:center;
+align-items:center;
+position:relative;
+}
+
+/* Background Animation */
+
+body::before{
+content:"";
+position:absolute;
+width:800px;
+height:800px;
+background:radial-gradient(circle,#2563eb55,transparent 70%);
+animation:spin 15s linear infinite;
+}
+
+body::after{
+content:"";
+position:absolute;
+width:600px;
+height:600px;
+background:radial-gradient(circle,#7c3aed55,transparent 70%);
+animation:spinReverse 20s linear infinite;
+}
+
+@keyframes spin{
+from{transform:rotate(0deg);}
+to{transform:rotate(360deg);}
+}
+
+@keyframes spinReverse{
+from{transform:rotate(360deg);}
+to{transform:rotate(0deg);}
+}
+
+.container{
+position:relative;
+z-index:2;
+width:90%;
+max-width:1000px;
+text-align:center;
+}
+
+.logo{
+font-size:55px;
+font-weight:700;
+color:white;
+margin-bottom:10px;
+animation:fadeUp 1s ease;
+}
+
+.subtitle{
+color:#94a3b8;
+font-size:18px;
+margin-bottom:50px;
+animation:fadeUp 1.3s ease;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:25px;
+}
+
+.card{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:25px;
+padding:35px;
+cursor:pointer;
+transition:.4s;
+position:relative;
+overflow:hidden;
+}
+
+.card:hover{
+transform:translateY(-10px) scale(1.03);
+border-color:#60a5fa;
+box-shadow:0 0 35px #2563eb66;
+}
+
+.card::before{
+content:"";
+position:absolute;
+top:-100%;
+left:-100%;
+width:300%;
+height:300%;
+background:linear-gradient(
+45deg,
+transparent,
+rgba(255,255,255,0.08),
+transparent
+);
+transform:rotate(25deg);
+transition:.8s;
+}
+
+.card:hover::before{
+top:100%;
+left:100%;
+}
+
+.icon{
+font-size:65px;
+margin-bottom:15px;
+}
+
+.title{
+font-size:28px;
+font-weight:700;
+color:white;
+margin-bottom:10px;
+}
+
+.desc{
+color:#cbd5e1;
+line-height:1.7;
+font-size:15px;
+}
+
+.footer{
+margin-top:40px;
+color:#64748b;
+font-size:14px;
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(40px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+@media(max-width:768px){
+
+.logo{
+font-size:38px;
+}
+
+.subtitle{
+font-size:15px;
+}
+
+.card{
+padding:25px;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="logo">⚡ Alarich Hub</div>
+
+<div class="subtitle">
+Pilih tujuan yang ingin kamu buka
+</div>
+
+<div class="cards">
+
+<div class="card"
+onclick="location.href='alarich-ai.html'">
+
+<div class="icon">🤖</div>
+
+<div class="title">Alarich AI</div>
+
+<div class="desc">
+AI Akademik, Deep Talk, Latihan Soal,
+dan Islamic Assistant.
+</div>
+
+</div>
+
+<div class="card"
+onclick="location.href='gamee.html'">
+
+<div class="icon">🎮</div>
+
+<div class="title">Gamee</div>
+
+<div class="desc">
+Kumpulan game dan hiburan
+yang dapat dimainkan langsung.
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+© 2026 Alarich Project
+</div>
+
+</div>
+
+<script>
+
+// efek masuk
+window.addEventListener("load",()=>{
+
+document.querySelectorAll(".card")
+.forEach((card,index)=>{
+
+card.style.opacity="0";
+card.style.transform="translateY(50px)";
+
+setTimeout(()=>{
+
+card.style.transition=".6s";
+
+card.style.opacity="1";
+card.style.transform="translateY(0)";
+
+},300+(index*200));
+
+});
+
+});
+
+</script>
+
+</body>
+</html>

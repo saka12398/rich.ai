@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Alarich AI v3</title>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+:root{
+  --bg:#0f172a; --panel:#111827; --border:#1f2937;
+  --bubble:#1e293b; --accent:#2563eb; --accent2:#60a5fa;
+  --text:#e5e7eb; --muted:#9ca3af;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  width:270px; background:var(--panel); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; transition:transform .25s ease;
+  flex-shrink:0; z-index:50;
+}
+.logo{font-size:22px;font-weight:bold;color:var(--accent2);padding:16px;display:flex;align-items:center;gap:8px}
+.newchat-btn{
+  margin:0 12px 10px; padding:10px; background:var(--accent); color:white;
+  border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:14px;
+}
+.mode-select{margin:0 12px 12px}
+.mode-select select{
+  width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);
+  background:#0b1220; color:var(--text); font-size:14px;
+}
+.history{flex:1; overflow-y:auto; padding:0 8px}
+.history-item{
+  display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:8px;
+  cursor:pointer; font-size:13px; color:var(--muted); margin-bottom:4px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.history-item:hover{background:#1a2333}
+.history-item.active{background:#1e2a44; color:var(--text)}
+.history-item .del{
+  margin-left:auto; opacity:.5; font-size:12px; padding:2px 6px; border-radius:6px;
+}
+.history-item .del:hover{opacity:1; background:#374151}
+.sidebar-footer{padding:10px 14px; font-size:11px; color:var(--muted); border-top:1px solid var(--border)}
+
+/* MAIN */
+.main{flex:1; display:flex; flex-direction:column; min-width:0}
+.topbar{
+  display:flex; align-items:center; gap:10px; padding:12px 16px;
+  border-bottom:1px solid var(--border); background:var(--panel);
+}
+.hamburger{display:none; background:none; border:none; color:var(--text); font-size:20px; cursor:pointer}
+.mode-badge{
+  display:inline-flex; align-items:center; gap:6px; padding:6px 12px;
+  border-radius:999px; font-size:13px; font-weight:600;
+}
+.mode-academic{background:#1e3a8a33; color:#93c5fd; border:1px solid #1e40af}
+.mode-deeptalk{background:#4c1d9533; color:#c4b5fd; border:1px solid #6d28d9}
+.mode-exercise{background:#78350f33; color:#fcd34d; border:1px solid #b45309}
+.mode-islamic{background:#06402333; color:#6ee7b7; border:1px solid #047857}
+
+.chat{flex:1; overflow-y:auto; padding:20px}
+.msg{max-width:85%; padding:14px 16px; border-radius:14px; margin:12px 0; line-height:1.7; font-size:15px; word-wrap:break-word}
+.msg img{max-width:100%}
+.user{background:var(--accent); margin-left:auto; border-bottom-right-radius:4px}
+.bot{background:var(--bubble); border-bottom-left-radius:4px}
+.msg pre{background:#0b1220; padding:10px; border-radius:8px; overflow-x:auto; margin:8px 0}
+.msg code{font-family:monospace; font-size:13px}
+.msg ul,.msg ol{margin:8px 0 8px 20px}
+
+/* Arabic text styling for nicer rendering in Islamic mode */
+.msg [dir="rtl"], .msg .arabic{
+  font-family:'Amiri','Scheherazade New','Traditional Arabic','Segoe UI',serif;
+  font-size:1.25em; line-height:2; direction:rtl; text-align:right;
+}
+
+.input-area{display:flex; gap:10px; padding:14px; background:var(--panel); border-top:1px solid var(--border)}
+textarea{
+  flex:1; min-height:50px; max-height:160px; border:1px solid var(--border); border-radius:12px;
+  padding:12px; resize:none; background:#0b1220; color:var(--text); font-size:15px;
+}
+textarea:focus{outline:1px solid var(--accent)}
+.send{
+  background:var(--accent); color:white; border:none; border-radius:12px;
+  padding:0 22px; font-size:18px; cursor:pointer; flex-shrink:0;
+}
+.send:disabled{opacity:.5; cursor:not-allowed}
+
+/* OVERLAY for mobile sidebar */
+.overlay{display:none; position:fixed; inset:0; background:#0008; z-index:40}
+
+/* GATE (API key setup) */
+.gate{
+  position:fixed; inset:0; background:#0f172aee; display:flex; align-items:center;
+  justify-content:center; z-index:100; padding:20px;
+}
+.gate-box{
+  background:var(--panel); border:1px solid var(--border); border-radius:16px;
+  padding:28px; max-width:420px; width:100%;
+}
+.gate-box h2{color:var(--accent2); margin-bottom:6px}
+.gate-box p{font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.6}
+.gate-box input{
+  width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);
+  background:#0b1220; color:var(--text); margin-bottom:10px; font-size:14px;
+}
+.gate-box button{
+  width:100%; padding:12px; border:none; border-radius:10px; background:var(--accent);
+  color:white; font-weight:600; cursor:pointer; font-size:15px;
+}
+.gate-box a{color:var(--accent2)}
+.hidden{display:none !important}
+
+/* RESPONSIVE */
+@media(max-width:850px){
+  .sidebar{
+    position:fixed; top:0; left:0; height:100%; transform:translateX(-100%);
+    box-shadow:4px 0 20px #0008;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .hamburger{display:block}
+  .overlay.show{display:block}
+  .msg{max-width:92%}
+}
+@media(max-width:420px){
+  .logo{font-size:18px}
+  .mode-badge{font-size:12px; padding:5px 10px}
+  .msg{font-size:14px; padding:11px 13px}
+}
+</style>
+</head>
+<body>
+
+<!-- API KEY GATE -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>⚡ Alarich AI</h2>
+    <p>
+      Masukkan API Key kamu. Mendukung <b>Gemini</b> (key diawali <code>AIza...</code>)
+      atau <b>OpenRouter</b> (key diawali <code>sk-or-v1-...</code>, bisa akses banyak model:
+      GPT, Claude, Llama, dll).
+      Key disimpan <b>hanya di perangkat ini (localStorage)</b> — tidak dikirim ke server lain selain provider terkait.
+      Setiap device (HP/laptop/tablet) perlu memasukkan key sendiri-sendiri.
+      <br><br>
+      Gemini gratis: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a><br>
+      OpenRouter: <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>
+    </p>
+    <input type="password" id="apiKeyInput" placeholder="Tempel API Key di sini..." oninput="onKeyInput()">
+    <div id="modelPickerWrap" class="hidden" style="margin-bottom:10px">
+      <label style="font-size:12px;color:var(--muted)">Pilih model OpenRouter:</label>
+      <select id="orModel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-top:6px">
+        <option value="openai/gpt-4o-mini">openai/gpt-4o-mini</option>
+        <option value="openai/gpt-4o">openai/gpt-4o</option>
+        <option value="anthropic/claude-3.5-sonnet">anthropic/claude-3.5-sonnet</option>
+        <option value="anthropic/claude-3-haiku">anthropic/claude-3-haiku</option>
+        <option value="google/gemini-2.0-flash-001">google/gemini-2.0-flash-001</option>
+        <option value="meta-llama/llama-3.1-70b-instruct">meta-llama/llama-3.1-70b-instruct</option>
+        <option value="deepseek/deepseek-chat">deepseek/deepseek-chat</option>
+      </select>
+    </div>
+    <button onclick="saveApiKey()">Simpan & Mulai</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="logo">⚡ Alarich AI</div>
+
+  <button class="newchat-btn" onclick="newChat()">+ Chat Baru</button>
+
+  <div class="mode-select">
+    <select id="mode" onchange="onModeChange()">
+      <option value="academic">📚 Akademik</option>
+      <option value="deeptalk">💭 Deep Talk</option>
+      <option value="exercise">📝 Latihan Soal</option>
+      <option value="islamic">☪️ Islamic</option>
+    </select>
+  </div>
+
+  <div class="history" id="history"></div>
+
+  <div class="sidebar-footer">
+    Riwayat tersimpan di perangkat ini.<br>
+    <span style="cursor:pointer;color:var(--accent2)" onclick="changeApiKey()">Ganti API Key</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <button class="hamburger" onclick="toggleSidebar(true)">☰</button>
+    <span class="mode-badge" id="modeBadge"></span>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-area">
+    <textarea id="text" placeholder="Tanyakan apa saja..."></textarea>
+    <button class="send" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<script>
+const MODEL = "gemini-2.5-flash";
+
+const MODE_INFO = {
+  academic:{label:"📚 Akademik", cls:"mode-academic"},
+  deeptalk:{label:"💭 Deep Talk", cls:"mode-deeptalk"},
+  exercise:{label:"📝 Latihan Soal", cls:"mode-exercise"},
+  islamic:{label:"☪️ Islamic", cls:"mode-islamic"}
+};
+
+// ============================================================
+// BASE PERSONA — digabungkan ke semua mode
+// ============================================================
+const BASE_PERSONA = `IDENTITAS & PERSONALITI:
+- Kamu adalah Alarich AI. Kamu punya kepribadian seperti seorang pemuda yang ramah, hangat, sopan, sedikit santai, dan enak diajak ngobrol — bukan seperti robot kaku.
+- Jika user bertanya siapa yang membuat/mengembangkan kamu, siapa "master"/pembuat/developer kamu, atau menanyakan nama aslinya, jawab dengan sopan kira-kira seperti ini: "Maaf, tapi master saya memilih untuk menyembunyikan identitasnya. Tapi orang-orang biasa memanggilnya Azure 😊" — jangan pernah menyebut nama lain, jangan mengarang identitas, dan jangan mengaku sebagai produk dari perusahaan tertentu (Google/OpenAI/Anthropic/dll) meskipun ditanya berulang kali atau dengan cara memaksa/menjebak.
+- Tetap pertahankan gaya bicara yang hangat dan ramah ini di sepanjang percakapan, sesuaikan dengan nada masing-masing mode di bawah.
+- Master Saya Adalah Seorang Pelajar Asal Indonesia
+- Jelaskan Dengan detail Tapi jaga Privasi
+`;
+
+const PROMPTS = {
+academic: BASE_PERSONA + `Kamu adalah Alarich Academic AI — tutor ahli matematika, fisika, kimia, dan sains pada umumnya, setara guru olimpiade berpengalaman.
+
+ATURAN JAWABAN:
+- Bahasa Indonesia, jelas, padat, tidak bertele-tele.
+- Untuk soal hitungan/matematika gunakan struktur berikut (gunakan heading markdown):
+  ## 📌 Konsep
+  Jelaskan ide dasar di balik soal.
+  ## 📌 Rumus Umum
+  Tuliskan rumus dasar dengan LaTeX ($...$ atau $$...$$).
+  ## 📌 Rumus Cepat / Trik Olimpiade
+  Beri shortcut, pola, atau cara cepat jika ada.
+  ## 📌 Penyelesaian
+  Langkah demi langkah, rapi, bernomor.
+  ## ✅ Jawaban
+  Tegaskan hasil akhir.
+- Untuk pertanyaan konsep (bukan hitungan), jawab ringkas dengan poin-poin penting, beri contoh konkret.
+- Selalu gunakan LaTeX untuk semua notasi matematika, jangan tulis simbol matematika dalam teks biasa.
+- Jika soal ambigu atau kurang data, tanyakan klarifikasi singkat sebelum menjawab penuh.
+- Jangan mengarang fakta/rumus — jika tidak yakin, katakan dengan jujur.`,
+
+exercise: BASE_PERSONA + `Kamu adalah Alarich Exercise Generator — pembuat soal latihan berkualitas tinggi setingkat ujian sekolah/olimpiade sesuai topik yang diminta user.
+
+ATURAN:
+- Jika user tidak menyebutkan jumlah soal, buat 5 soal.
+- Variasikan tingkat kesulitan (mudah → sedang → sulit) kecuali user minta level tertentu.
+- Format setiap soal:
+  **Soal N**
+  (teks soal, gunakan LaTeX untuk matematika)
+  <details>
+  **Pembahasan:** langkah penyelesaian lengkap + **Jawaban Akhir**
+  </details>
+  (jika markdown details tidak didukung, cukup pisahkan dengan heading "Pembahasan")
+- Pastikan soal valid secara matematis/faktual dan pembahasan benar-benar menjawab soal tersebut.
+- Jika user minta topik spesifik (misal "soal integral parsial"), fokus penuh ke topik itu.
+- Gunakan bahasa Indonesia yang baku namun mudah dipahami siswa.`,
+
+islamic: BASE_PERSONA + `Kamu adalah Alarich Islamic AI — asisten kajian Islam yang berhati-hati, jujur, dan berimbang.
+
+ATURAN KETAT:
+- Jawaban berdasarkan Al-Qur'an dan Hadis yang shahih/hasan saja. Jangan pernah mengarang ayat, hadis, atau riwayat.
+- Jika menyebutkan ayat, sertakan nama surah dan nomor ayat (misal: QS. Al-Baqarah: 183), dan jika relevan tuliskan juga teks Arabnya (dengan huruf Arab asli, bukan transliterasi saja) beserta artinya dalam Bahasa Indonesia. Jika menyebut hadis, sebutkan perawi/kitab jika diketahui (misal: HR. Bukhari, HR. Muslim), dan boleh menyertakan teks Arab hadis tersebut jika diketahui dengan pasti.
+- Kamu mampu membaca, menulis, dan menjelaskan teks Bahasa Arab (termasuk huruf Arab/Arabic script), termasuk istilah-istilah Islam (misal niat, doa, dzikir, lafaz takbir, dll) — tuliskan dalam huruf Arab asli beserta transliterasi Latin dan artinya jika user memintanya atau jika relevan untuk menjelaskan suatu dalil. Jika user menulis atau bertanya dalam Bahasa Arab, kamu boleh merespons sebagian/seluruhnya dalam Bahasa Arab jika itu membantu, namun tetap sertakan penjelasan dalam Bahasa Indonesia.
+- Jika tidak yakin terhadap teks/sumber persis suatu dalil (termasuk teks Arabnya), katakan dengan jujur "saya tidak yakin redaksi pastinya, namun secara makna..." daripada mengarang.
+- Untuk masalah yang terdapat perbedaan pendapat ulama (ikhtilaf), jelaskan secara netral minimal 2 pendapat beserta dasar argumennya masing-masing, tanpa memihak satu mazhab secara berlebihan, kecuali user secara spesifik meminta pandangan mazhab tertentu.
+- Gunakan bahasa yang santun, menyejukkan, dan tidak menggurui.
+- Untuk pertanyaan fiqih praktis sehari-hari, beri jawaban yang aplikatif namun tetap sertakan landasan dalil singkat.
+- Hindari fatwa kontroversial/politis yang berpotensi memecah belah; arahkan user untuk bertanya pada ulama/lembaga yang kompeten untuk kasus yang sangat spesifik/personal.`,
+
+deeptalk: BASE_PERSONA + `Kamu adalah Alarich Deep Talk — teman bicara yang empatik, hangat, realistis, dan tidak menghakimi.
+
+ATURAN:
+- Dengarkan dulu, validasi perasaan user sebelum memberi pandangan/solusi.
+- Jawaban tidak terlalu panjang (umumnya 3-8 kalimat), kecuali user secara jelas minta penjelasan mendalam.
+- Gunakan bahasa Indonesia santai namun sopan, seperti teman dekat yang bijak — hindari nada formal/robotic.
+- Berikan perspektif baru atau pertanyaan reflektif yang membantu user berpikir lebih jernih, bukan sekadar menggurui.
+- Jangan membuat diagnosis medis/psikologis. Jika user menunjukkan tanda krisis (misal pikiran menyakiti diri), respon dengan empati, sarankan bicara dengan profesional/orang terpercaya, dan sertakan layanan bantuan seperti hotline kesehatan jiwa Kemenkes 119 ext 8 (Indonesia).
+- Jangan terlalu cepat memberi nasihat "klise" (misal "yang penting positif thinking") — gali dulu konteksnya.`
+};
+
+// ---------- STORAGE ----------
+const LS_KEY = "alarich_api_key";
+const LS_PROVIDER = "alarich_provider"; // "gemini" | "openrouter"
+const LS_OR_MODEL = "alarich_or_model";
+const LS_CHATS = "alarich_chats_v1";
+const LS_ACTIVE = "alarich_active_chat";
+
+let chats = JSON.parse(localStorage.getItem(LS_CHATS) || "{}");
+let activeId = localStorage.getItem(LS_ACTIVE);
+
+function saveChats(){
+  localStorage.setItem(LS_CHATS, JSON.stringify(chats));
+}
+
+// ---------- API KEY GATE ----------
+function detectProvider(key){
+  if(key.startsWith("sk-or-")) return "openrouter";
+  return "gemini";
+}
+function onKeyInput(){
+  const val = document.getElementById("apiKeyInput").value.trim();
+  const wrap = document.getElementById("modelPickerWrap");
+  if(detectProvider(val) === "openrouter"){
+    wrap.classList.remove("hidden");
+  } else {
+    wrap.classList.add("hidden");
+  }
+}
+function checkApiKey(){
+  const key = localStorage.getItem(LS_KEY);
+  if(key){
+    document.getElementById("gate").classList.add("hidden");
+  } else {
+    document.getElementById("gate").classList.remove("hidden");
+  }
+}
+function saveApiKey(){
+  const val = document.getElementById("apiKeyInput").value.trim();
+  if(!val){ alert("Masukkan API key terlebih dahulu."); return; }
+  const provider = detectProvider(val);
+  localStorage.setItem(LS_KEY, val);
+  localStorage.setItem(LS_PROVIDER, provider);
+  if(provider === "openrouter"){
+    localStorage.setItem(LS_OR_MODEL, document.getElementById("orModel").value);
+  }
+  checkApiKey();
+}
+function changeApiKey(){
+  document.getElementById("apiKeyInput").value = localStorage.getItem(LS_KEY) || "";
+  const provider = localStorage.getItem(LS_PROVIDER) || "gemini";
+  if(provider === "openrouter"){
+    document.getElementById("modelPickerWrap").classList.remove("hidden");
+    const saved = localStorage.getItem(LS_OR_MODEL);
+    if(saved) document.getElementById("orModel").value = saved;
+  } else {
+    document.getElementById("modelPickerWrap").classList.add("hidden");
+  }
+  document.getElementById("gate").classList.remove("hidden");
+}
+
+// ---------- SIDEBAR (mobile) ----------
+function toggleSidebar(open){
+  document.getElementById("sidebar").classList.toggle("open", open);
+  document.getElementById("overlay").classList.toggle("show", open);
+}
+
+// ---------- CHAT MANAGEMENT ----------
+function genId(){ return "c" + Date.now() + Math.random().toString(36).slice(2,7); }
+
+function newChat(){
+  const mode = document.getElementById("mode").value;
+  const id = genId();
+  chats[id] = {
+    id, mode, title: "Chat baru", createdAt: Date.now(),
+    messages: []
+  };
+  activeId = id;
+  saveChats();
+  localStorage.setItem(LS_ACTIVE, activeId);
+  renderHistory();
+  renderChat();
+  toggleSidebar(false);
+}
+
+function ensureActiveChat(){
+  if(activeId && chats[activeId]) return;
+  const ids = Object.keys(chats);
+  if(ids.length){
+    // most recent
+    activeId = ids.sort((a,b)=>chats[b].createdAt - chats[a].createdAt)[0];
+  } else {
+    newChat();
+    return;
+  }
+  localStorage.setItem(LS_ACTIVE, activeId);
+}
+
+function switchChat(id){
+  activeId = id;
+  localStorage.setItem(LS_ACTIVE, activeId);
+  // auto switch mode selector to this chat's mode
+  document.getElementById("mode").value = chats[id].mode;
+  renderHistory();
+  renderChat();
+  toggleSidebar(false);
+}
+
+function deleteChat(id, ev){
+  ev.stopPropagation();
+  if(!confirm("Hapus chat ini?")) return;
+  delete chats[id];
+  saveChats();
+  if(activeId === id){
+    activeId = null;
+    ensureActiveChat();
+  }
+  renderHistory();
+  renderChat();
+}
+
+function onModeChange(){
+  const newMode = document.getElementById("mode").value;
+  const chat = chats[activeId];
+  if(chat && chat.messages.length === 0){
+    // chat masih kosong, cukup ganti mode & logo, tidak perlu chat baru
+    chat.mode = newMode;
+    saveChats();
+    renderHistory();
+    renderChat();
+  } else {
+    newChat();
+  }
+}
+
+function updateBadge(mode){
+  const info = MODE_INFO[mode];
+  const badge = document.getElementById("modeBadge");
+  badge.textContent = info.label;
+  badge.className = "mode-badge " + info.cls;
+}
+
+function renderHistory(){
+  const el = document.getElementById("history");
+  el.innerHTML = "";
+  const ids = Object.keys(chats).sort((a,b)=>chats[b].createdAt - chats[a].createdAt);
+  for(const id of ids){
+    const c = chats[id];
+    const info = MODE_INFO[c.mode];
+    const div = document.createElement("div");
+    div.className = "history-item" + (id===activeId ? " active":"");
+    div.onclick = ()=>switchChat(id);
+    div.innerHTML = `<span>${info.label.split(" ")[0]}</span><span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(c.title)}</span><span class="del" onclick="deleteChat('${id}',event)">✕</span>`;
+    el.appendChild(div);
+  }
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ---------- RENDER MESSAGES ----------
+function renderChat(){
+  const chat = chats[activeId];
+  document.getElementById("mode").value = chat.mode;
+  updateBadge(chat.mode);
+
+  const chatEl = document.getElementById("chat");
+  chatEl.innerHTML = "";
+
+  if(chat.messages.length === 0){
+    addBubble(`# Halo 👋\n\nAku **Alarich AI** dalam mode **${MODE_INFO[chat.mode].label}**. Tanyakan apa saja!`, "bot", false);
+  } else {
+    for(const m of chat.messages){
+      addBubble(m.text, m.role === "user" ? "user" : "bot", false);
+    }
+  }
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function addBubble(text, type, scroll=true){
+  const chatEl = document.getElementById("chat");
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.innerHTML = marked.parse(text);
+  chatEl.appendChild(div);
+  if(window.MathJax && window.MathJax.typesetPromise){
+    MathJax.typesetPromise([div]).catch(()=>{});
+  }
+  if(scroll) chatEl.scrollTop = chatEl.scrollHeight;
+  return div;
+}
+
+// ---------- SEND MESSAGE ----------
+async function sendMessage(){
+  const input = document.getElementById("text");
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(LS_KEY);
+  if(!apiKey){ checkApiKey(); return; }
+
+  const chat = chats[activeId];
+  chat.messages.push({role:"user", text});
+  if(chat.title === "Chat baru"){
+    chat.title = text.slice(0,40);
+  }
+  saveChats();
+  renderHistory();
+
+  addBubble(text, "user");
+  input.value = "";
+  autoresize();
+
+  const sendBtn = document.getElementById("sendBtn");
+  sendBtn.disabled = true;
+
+  const loading = addBubble("⏳ Alarich sedang berpikir...", "bot");
+
+  try{
+    const provider = localStorage.getItem(LS_PROVIDER) || "gemini";
+    let answer;
+
+    if(provider === "openrouter"){
+      const orModel = localStorage.getItem(LS_OR_MODEL) || "openai/gpt-4o-mini";
+      const messages = [{role:"system", content:PROMPTS[chat.mode]}];
+      for(const m of chat.messages){
+        messages.push({role: m.role==="user" ? "user" : "assistant", content:m.text});
+      }
+
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":"Bearer "+apiKey,
+          "HTTP-Referer": location.href,
+          "X-Title":"Alarich AI"
+        },
+        body: JSON.stringify({ model: orModel, messages })
+      });
+      const data = await res.json();
+      loading.remove();
+
+      if(data.error){
+        addBubble("❌ Error: " + (data.error.message || JSON.stringify(data.error)), "bot");
+        return;
+      }
+      answer = data?.choices?.[0]?.message?.content || "Tidak ada jawaban.";
+
+    } else {
+      // Gemini
+      const contents = [];
+      for(const m of chat.messages){
+        contents.push({
+          role: m.role === "user" ? "user" : "model",
+          parts:[{text:m.text}]
+        });
+      }
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
+        {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            system_instruction:{ parts:[{text:PROMPTS[chat.mode]}] },
+            contents: contents
+          })
+        }
+      );
+      const data = await res.json();
+      loading.remove();
+
+      if(data.error){
+        addBubble("❌ Error: " + data.error.message, "bot");
+        return;
+      }
+      answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Tidak ada jawaban.";
+    }
+
+    chat.messages.push({role:"model", text:answer});
+    saveChats();
+    addBubble(answer, "bot");
+
+  }catch(err){
+    loading.remove();
+    addBubble("❌ Gagal terhubung: " + err.message, "bot");
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+// ---------- INPUT HANDLING ----------
+function autoresize(){
+  const t = document.getElementById("text");
+  t.style.height = "auto";
+  t.style.height = Math.min(t.scrollHeight, 160) + "px";
+}
+
+document.getElementById("text").addEventListener("input", autoresize);
+document.getElementById("text").addEventListener("keydown", e=>{
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ---------- INIT ----------
+checkApiKey();
+ensureActiveChat();
+renderHistory();
+renderChat();
+</script>
+</body>
+</html>
