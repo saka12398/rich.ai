@@ -2,886 +2,1302 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Alarich AI v4 - Multi Mode + Multi Agama</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Alarich AI v5</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
 window.MathJax = {
-  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+  startup: { typeset: false }
 };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+/* ===== RESET & TOKENS ===== */
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0f172a; --panel:#111827; --border:#1f2937;
-  --bubble:#1e293b; --accent:#2563eb; --accent2:#60a5fa;
-  --text:#e5e7eb; --muted:#9ca3af;
-  --tutorial-glow:#00d4ff;
-  --whatsapp:#25D366;
+  --bg:#0a0f1e;
+  --panel:#0d1424;
+  --panel2:#111827;
+  --border:#1e2d45;
+  --border2:#253352;
+  --bubble-user:#1a3a6e;
+  --bubble-bot:#111e35;
+  --accent:#3b6ef8;
+  --accent-hover:#5580ff;
+  --accent2:#60a5fa;
+  --accent3:#818cf8;
+  --text:#e2e8f0;
+  --text2:#94a3b8;
+  --text3:#64748b;
+  --radius:14px;
+  --sidebar:280px;
+  --topbar:56px;
+  --inputbar:80px;
+  --font:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code',monospace;
+  --glow:0 0 0 3px rgba(59,110,248,0.35);
 }
-html,body{height:100%}
-body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  display:flex;
+  font-size:15px;
+  line-height:1.6;
+}
 
-/* SIDEBAR */
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#2d5285}
+
+/* ===== SIDEBAR ===== */
 .sidebar{
-  width:290px; background:var(--panel); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; transition:transform .25s ease;
-  flex-shrink:0; z-index:50; overflow-y:auto;
-}
-.logo{font-size:22px;font-weight:bold;color:var(--accent2);padding:16px;display:flex;align-items:center;gap:8px}
-.newchat-btn{
-  margin:0 12px 10px; padding:10px; background:var(--accent); color:white;
-  border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:14px;
-}
-.mode-select{margin:0 12px 12px}
-.mode-select select{
-  width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);
-  background:#0b1220; color:var(--text); font-size:14px;
-}
-.religion-select{
-  margin:0 12px 12px;
-  padding-top:8px;
-  border-top:1px solid var(--border);
-}
-.religion-select label{
-  font-size:12px;
-  color:var(--muted);
-  display:block;
-  margin-bottom:8px;
-}
-.religion-options{
+  width:var(--sidebar);
+  background:var(--panel);
+  border-right:1px solid var(--border);
   display:flex;
-  flex-wrap:wrap;
-  gap:8px;
+  flex-direction:column;
+  flex-shrink:0;
+  z-index:50;
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
 }
-.religion-btn{
-  padding:6px 12px;
-  border-radius:20px;
-  background:#0b1220;
-  border:1px solid var(--border);
-  color:var(--muted);
-  font-size:12px;
-  cursor:pointer;
-  transition:all 0.2s;
+.sidebar-header{
+  padding:16px 14px 12px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
 }
-.religion-btn.active{
-  background:var(--accent);
-  border-color:var(--accent2);
-  color:white;
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-size:18px;font-weight:700;color:var(--accent2);
+  margin-bottom:12px;letter-spacing:-.3px;
 }
-.tutorial-btn{
-  margin:8px 12px;
-  padding:8px;
-  background:#1e293b;
-  border:1px solid var(--border);
-  border-radius:10px;
-  color:var(--accent2);
-  cursor:pointer;
-  font-size:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+.logo-icon{
+  width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0;
 }
-.history{flex:1; overflow-y:auto; padding:0 8px}
+.new-btn{
+  width:100%;padding:9px 14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:white;border:none;border-radius:10px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:7px;justify-content:center;
+  transition:opacity .15s,transform .15s;
+}
+.new-btn:hover{opacity:.9;transform:translateY(-1px)}
+.new-btn:active{transform:scale(.98)}
+
+/* ===== MODE SELECT ===== */
+.sidebar-section{
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.sidebar-section-label{
+  font-size:10px;font-weight:600;letter-spacing:.08em;
+  color:var(--text3);text-transform:uppercase;margin-bottom:8px;
+}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mode-chip{
+  padding:7px 6px;border-radius:9px;
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--text2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .15s;text-align:center;
+}
+.mode-chip:hover{border-color:var(--border2);color:var(--text)}
+.mode-chip.active{
+  background:rgba(59,110,248,.18);
+  border-color:var(--accent);color:var(--accent2);
+}
+.religion-wrap{margin-top:10px}
+.religion-label{
+  font-size:10px;font-weight:600;letter-spacing:.08em;
+  color:var(--text3);text-transform:uppercase;margin-bottom:8px;display:block;
+}
+.religion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.rel-chip{
+  padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--text2);font-size:11px;font-weight:500;
+  cursor:pointer;transition:all .15s;text-align:center;
+}
+.rel-chip:hover{border-color:var(--border2);color:var(--text)}
+.rel-chip.active{background:rgba(16,185,129,.15);border-color:#10b981;color:#6ee7b7}
+
+/* ===== HISTORY ===== */
+.history-wrap{
+  flex:1;overflow-y:auto;padding:10px 8px;
+  display:flex;flex-direction:column;gap:2px;
+}
 .history-item{
-  display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:8px;
-  cursor:pointer; font-size:13px; color:var(--muted); margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:9px;
+  cursor:pointer;transition:background .12s;
+  font-size:13px;color:var(--text2);
 }
-.history-item:hover{background:#1a2333}
-.history-item.active{background:#1e2a44; color:var(--text)}
-.history-item .del{
-  margin-left:auto; opacity:.5; font-size:12px; padding:2px 6px; border-radius:6px;
+.history-item:hover{background:var(--panel2)}
+.history-item.active{background:#0f2042;color:var(--text)}
+.history-item .h-icon{flex-shrink:0;font-size:14px}
+.history-item .h-title{
+  flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.history-item .del:hover{opacity:1; background:#374151}
-.sidebar-footer{padding:10px 14px; font-size:11px; color:var(--muted); border-top:1px solid var(--border)}
+.history-item .h-del{
+  flex-shrink:0;opacity:0;padding:2px 5px;
+  border-radius:5px;font-size:12px;transition:opacity .1s;
+}
+.history-item:hover .h-del{opacity:.5}
+.history-item .h-del:hover{opacity:1;background:#1e2d45}
+.sidebar-footer{
+  padding:10px 14px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--text3);
+  flex-shrink:0;
+}
+.footer-link{
+  color:var(--accent2);cursor:pointer;
+  text-decoration:none;
+}
+.footer-link:hover{text-decoration:underline}
 
-/* MAIN */
-.main{flex:1; display:flex; flex-direction:column; min-width:0}
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 .topbar{
-  display:flex; align-items:center; gap:10px; padding:12px 16px;
-  border-bottom:1px solid var(--border); background:var(--panel);
+  height:var(--topbar);
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px;
+  border-bottom:1px solid var(--border);
+  background:var(--panel);
+  flex-shrink:0;
 }
-.hamburger{display:none; background:none; border:none; color:var(--text); font-size:20px; cursor:pointer}
+.hamburger{
+  display:none;background:none;border:none;
+  color:var(--text2);font-size:20px;cursor:pointer;
+  padding:4px;border-radius:7px;
+  transition:color .15s,background .15s;
+}
+.hamburger:hover{color:var(--text);background:var(--panel2)}
 .mode-badge{
-  display:inline-flex; align-items:center; gap:6px; padding:6px 12px;
-  border-radius:999px; font-size:13px; font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:99px;
+  font-size:12px;font-weight:600;letter-spacing:.01em;
 }
-.mode-academic{background:#1e3a8a33; color:#93c5fd; border:1px solid #1e40af}
-.mode-deeptalk{background:#4c1d9533; color:#c4b5fd; border:1px solid #6d28d9}
-.mode-exercise{background:#78350f33; color:#fcd34d; border:1px solid #b45309}
-.mode-islamic{background:#06402333; color:#6ee7b7; border:1px solid #047857}
-.mode-hindu{background:#b4530933; color:#fcd34d; border:1px solid #d97706}
-.mode-buddha{background:#5b21b633; color:#c4b5fd; border:1px solid #8b5cf6}
-.mode-kristen{background:#1e3a8a33; color:#93c5fd; border:1px solid #2563eb}
-.mode-konghucu{background:#b91c1c33; color:#fca5a5; border:1px solid #dc2626}
+.topbar-actions{margin-left:auto;display:flex;gap:6px}
+.topbar-btn{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  padding:5px 10px;color:var(--text2);font-size:12px;cursor:pointer;
+  transition:all .15s;
+}
+.topbar-btn:hover{border-color:var(--border2);color:var(--text);background:var(--panel2)}
 
-.chat{flex:1; overflow-y:auto; padding:20px}
-.msg{max-width:85%; padding:14px 16px; border-radius:14px; margin:12px 0; line-height:1.7; font-size:15px; word-wrap:break-word}
-.user{background:var(--accent); margin-left:auto; border-bottom-right-radius:4px}
-.bot{background:var(--bubble); border-bottom-left-radius:4px}
-.msg pre{background:#0b1220; padding:10px; border-radius:8px; overflow-x:auto}
-.input-area{display:flex; gap:10px; padding:14px; background:var(--panel); border-top:1px solid var(--border)}
-textarea{
-  flex:1; min-height:50px; max-height:160px; border:1px solid var(--border); border-radius:12px;
-  padding:12px; resize:none; background:#0b1220; color:var(--text); font-size:15px;
+/* ===== CHAT ===== */
+.chat-wrap{
+  flex:1;overflow-y:auto;
+  padding:20px 16px;
+  display:flex;flex-direction:column;
+  gap:4px;
 }
-textarea:focus{outline:1px solid var(--accent)}
-.send{
-  background:var(--accent); color:white; border:none; border-radius:12px;
-  padding:0 22px; font-size:18px; cursor:pointer;
+.chat-row{display:flex;margin:6px 0}
+.chat-row.user{justify-content:flex-end}
+.chat-row.bot{justify-content:flex-start}
+.avatar{
+  width:30px;height:30px;border-radius:50%;
+  flex-shrink:0;display:grid;place-items:center;
+  font-size:14px;margin-top:4px;
 }
-.send:disabled{opacity:.5}
-.overlay{display:none; position:fixed; inset:0; background:#0008; z-index:40}
+.avatar.bot-av{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  margin-right:8px;
+}
+.avatar.user-av{
+  background:#1e3a5f;margin-left:8px;order:2;
+}
+.bubble{
+  max-width:min(78%,640px);
+  padding:12px 16px;
+  border-radius:18px;
+  font-size:14.5px;
+  line-height:1.75;
+  word-wrap:break-word;
+  word-break:break-word;
+}
+.bubble.user{
+  background:linear-gradient(135deg,#1e3a8a,#1a337a);
+  border-bottom-right-radius:4px;
+}
+.bubble.bot{
+  background:var(--bubble-bot);
+  border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+/* markdown inside bubbles */
+.bubble p{margin:.4em 0}
+.bubble p:first-child{margin-top:0}
+.bubble p:last-child{margin-bottom:0}
+.bubble h1,.bubble h2,.bubble h3{
+  color:var(--accent2);margin:.8em 0 .3em;
+  font-size:1em;font-weight:700;
+}
+.bubble h1{font-size:1.1em}
+.bubble ul,.bubble ol{margin:.4em 0 .4em 1.2em}
+.bubble li{margin:.2em 0}
+.bubble strong{color:var(--accent2)}
+.bubble em{color:var(--text2)}
+.bubble code{
+  background:#0a0f1e;border-radius:5px;
+  padding:1px 5px;font-family:var(--font-mono);
+  font-size:13px;color:#6ee7b7;
+}
+.bubble pre{
+  background:#060c18;border:1px solid var(--border);
+  border-radius:10px;overflow-x:auto;margin:.6em 0;
+  position:relative;
+}
+.bubble pre code{
+  display:block;padding:12px 14px;
+  background:transparent;color:#a5f3fc;font-size:13px;
+}
+.bubble blockquote{
+  border-left:3px solid var(--accent2);
+  padding-left:12px;color:var(--text2);
+  margin:.5em 0;font-style:italic;
+}
+.bubble table{
+  border-collapse:collapse;width:100%;margin:.5em 0;font-size:13px;
+}
+.bubble th,.bubble td{
+  border:1px solid var(--border);padding:6px 10px;
+}
+.bubble th{background:var(--panel);color:var(--accent2)}
+.bubble a{color:var(--accent2);text-decoration:underline}
+.bubble details{margin:.4em 0}
+.bubble summary{cursor:pointer;color:var(--accent2);font-weight:600}
 
-/* GATE API KEY - WITH FULL INFO */
+/* typing indicator */
+.typing-dot{
+  display:inline-block;width:7px;height:7px;
+  background:var(--text3);border-radius:50%;margin:0 2px;
+  animation:tdot 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
+
+/* ===== INPUT AREA ===== */
+.input-bar{
+  padding:12px 16px;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.input-inner{
+  display:flex;align-items:flex-end;gap:10px;
+  background:#060c18;border:1px solid var(--border2);
+  border-radius:16px;padding:10px 12px;
+  transition:border-color .2s;
+}
+.input-inner:focus-within{border-color:var(--accent)}
+.input-inner textarea{
+  flex:1;background:transparent;border:none;
+  color:var(--text);font-size:14.5px;font-family:var(--font);
+  resize:none;outline:none;
+  min-height:26px;max-height:160px;
+  line-height:1.6;padding:0;
+}
+.input-inner textarea::placeholder{color:var(--text3)}
+.send-btn{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border:none;color:white;font-size:16px;
+  cursor:pointer;flex-shrink:0;
+  display:grid;place-items:center;
+  transition:opacity .15s,transform .15s;
+}
+.send-btn:hover{opacity:.9;transform:scale(1.05)}
+.send-btn:active{transform:scale(.95)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.input-hint{
+  font-size:11px;color:var(--text3);
+  margin-top:6px;text-align:center;
+}
+
+/* ===== WELCOME SCREEN ===== */
+.welcome{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px;text-align:center;
+  gap:16px;
+}
+.welcome-logo{
+  width:72px;height:72px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border-radius:20px;display:grid;place-items:center;
+  font-size:36px;
+  box-shadow:0 8px 32px rgba(59,110,248,.3);
+}
+.welcome h2{font-size:22px;font-weight:700;color:var(--text)}
+.welcome p{font-size:14px;color:var(--text2);max-width:380px;line-height:1.6}
+.welcome-chips{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px;
+}
+.welcome-chip{
+  padding:8px 14px;border-radius:99px;
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--text2);font-size:13px;cursor:pointer;
+  transition:all .15s;
+}
+.welcome-chip:hover{
+  border-color:var(--accent);color:var(--accent2);
+  background:rgba(59,110,248,.1);
+}
+
+/* ===== GATE / API KEY ===== */
 .gate{
-  position:fixed; inset:0; background:#0f172aee; display:flex; align-items:center;
-  justify-content:center; z-index:100; padding:20px; overflow-y:auto;
+  position:fixed;inset:0;
+  background:rgba(10,15,30,.97);
+  display:flex;align-items:center;justify-content:center;
+  z-index:200;padding:16px;overflow-y:auto;
+  backdrop-filter:blur(4px);
 }
 .gate-box{
-  background:var(--panel); border:1px solid var(--border); border-radius:20px;
-  padding:28px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto;
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:28px 24px;
+  max-width:460px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
-.gate-box h2{color:var(--accent2); margin-bottom:6px; font-size:22px;}
-.gate-box h3{color:var(--text); font-size:16px; margin:16px 0 8px; border-left:3px solid var(--accent2); padding-left:10px;}
-.gate-box p{font-size:13px; color:var(--muted); margin-bottom:12px; line-height:1.6}
-.gate-box input{
-  width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);
-  background:#0b1220; color:var(--text); margin-bottom:10px; font-size:14px;
+.gate-logo{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:6px;
 }
-.gate-box button{
-  width:100%; padding:12px; border:none; border-radius:10px; background:var(--accent);
-  color:white; font-weight:600; cursor:pointer; font-size:15px;
-  transition:all 0.2s;
-}
-.gate-box button:hover{background:#3b82f6; transform:scale(1.01);}
-.hidden{display:none !important}
-.input-group{
-  position:relative; display:flex; align-items:center; gap:8px; margin-bottom:10px;
-}
-.input-group input{ flex:1; margin-bottom:0; padding-right:70px; }
-.key-icons{
-  position:absolute; right:8px; display:flex; gap:6px;
-}
-.key-icon-btn{
-  background:transparent; border:none; color:var(--muted); cursor:pointer;
-  font-size:18px; padding:4px; border-radius:6px;
-}
-.key-icon-btn:hover{ background:#1f2937; color:var(--accent2); }
-.wa-option{
-  background:rgba(37,211,102,0.1);
-  border:1px solid var(--whatsapp);
+.gate-box h2{font-size:22px;font-weight:700;color:var(--accent2)}
+.gate-box p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+.gate-section{
+  background:#070d1a;
+  border:1px solid var(--border);
   border-radius:12px;
-  padding:12px;
+  padding:14px;
   margin:12px 0;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
 }
-.wa-option a{
-  background:var(--whatsapp);
-  color:white;
-  text-decoration:none;
-  padding:8px 20px;
-  border-radius:30px;
-  font-weight:600;
-  font-size:13px;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
+.gate-section h3{
+  font-size:13px;font-weight:600;color:var(--text);
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
 }
-.wa-option a:hover{opacity:0.9; transform:scale(1.02);}
-.method-icon{font-size:24px;}
+.gate-section ol,.gate-section ul{
+  margin-left:18px;font-size:12px;color:var(--text2);line-height:1.8;
+}
+.wa-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:99px;
+  background:#25D366;color:white;
+  font-size:13px;font-weight:600;text-decoration:none;
+  transition:opacity .15s,transform .15s;
+  margin-top:8px;
+}
+.wa-btn:hover{opacity:.9;transform:scale(1.02)}
 .api-example{
-  background:#0b1220;
-  padding:8px 12px;
-  border-radius:8px;
-  font-family:monospace;
-  font-size:12px;
-  color:#6ee7b7;
-  margin:8px 0;
+  background:#040810;border-radius:8px;
+  padding:7px 11px;font-family:var(--font-mono);
+  font-size:12px;color:#6ee7b7;margin:8px 0;
+}
+.key-wrap{position:relative;margin:12px 0}
+.key-wrap input{
+  width:100%;padding:11px 80px 11px 14px;
+  border-radius:10px;border:1px solid var(--border2);
+  background:#040810;color:var(--text);
+  font-size:14px;transition:border-color .2s;
+}
+.key-wrap input:focus{outline:none;border-color:var(--accent)}
+.key-actions{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  display:flex;gap:4px;
+}
+.key-action-btn{
+  background:transparent;border:none;color:var(--text3);
+  cursor:pointer;font-size:16px;padding:4px;
+  border-radius:6px;transition:color .15s,background .15s;
+}
+.key-action-btn:hover{color:var(--accent2);background:var(--panel2)}
+.or-model-select{
+  width:100%;padding:10px 14px;
+  border-radius:10px;border:1px solid var(--border2);
+  background:#040810;color:var(--text);
+  font-size:13px;margin:8px 0;
+}
+.primary-btn{
+  width:100%;padding:13px;border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:white;font-weight:700;font-size:15px;
+  cursor:pointer;transition:opacity .15s,transform .15s;
+  margin-top:8px;
+}
+.primary-btn:hover{opacity:.9;transform:translateY(-1px)}
+.primary-btn:active{transform:scale(.98)}
+.gate-note{
+  font-size:11px;color:var(--text3);
+  text-align:center;margin-top:10px;
 }
 
-/* ========== TUTORIAL INTERAKTIF ========== */
-.tour-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 1000;
-  visibility: hidden;
-  opacity: 0;
-  transition: all 0.4s ease;
+/* ===== OVERLAY & MOBILE ===== */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.6);z-index:40;
+  backdrop-filter:blur(2px);
 }
-.tour-overlay.active {
-  visibility: visible;
-  opacity: 1;
+.overlay.show{display:block}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--panel2);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 18px;
+  font-size:13px;color:var(--text);
+  opacity:0;transition:all .3s;z-index:300;pointer-events:none;
+  white-space:nowrap;
 }
-.tour-highlight {
-  position: absolute;
-  border-radius: 16px;
-  box-shadow: 0 0 0 4px var(--tutorial-glow), 0 0 0 9999px rgba(0,0,0,0.7);
-  transition: all 0.4s cubic-bezier(0.2,0.9,0.4,1.1);
-  z-index: 1001;
-  pointer-events: none;
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== MODE BADGE COLORS ===== */
+.mode-badge.academic{background:rgba(30,58,138,.3);color:#93c5fd;border:1px solid #1e40af}
+.mode-badge.deeptalk{background:rgba(76,29,149,.3);color:#c4b5fd;border:1px solid #6d28d9}
+.mode-badge.exercise{background:rgba(120,53,15,.3);color:#fcd34d;border:1px solid #b45309}
+.mode-badge.islam{background:rgba(6,64,35,.3);color:#6ee7b7;border:1px solid #047857}
+.mode-badge.kristen,.mode-badge.katolik{background:rgba(30,58,138,.3);color:#93c5fd;border:1px solid #1e40af}
+.mode-badge.hindu{background:rgba(180,83,9,.3);color:#fcd34d;border:1px solid #b45309}
+.mode-badge.buddha{background:rgba(91,33,182,.3);color:#c4b5fd;border:1px solid #7c3aed}
+.mode-badge.konghucu{background:rgba(185,28,28,.3);color:#fca5a5;border:1px solid #dc2626}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  :root{--sidebar:280px}
+  .sidebar{
+    position:fixed;top:0;left:0;height:100%;
+    transform:translateX(-100%);
+    box-shadow:4px 0 20px rgba(0,0,0,.5);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .hamburger{display:flex}
+  .chat-wrap{padding:14px 10px}
+  .bubble{max-width:88%;font-size:14px;padding:10px 13px}
+  .input-bar{padding:10px}
+  .input-inner{border-radius:14px;padding:8px 10px}
+  .welcome h2{font-size:18px}
+  .welcome-chips{max-width:100%}
+  .gate-box{padding:20px 16px}
 }
-.tour-tooltip {
-  position: absolute;
-  background: linear-gradient(145deg, #1e293b, #0f172a);
-  border: 1px solid var(--accent2);
-  border-radius: 20px;
-  padding: 20px 24px;
-  max-width: 320px;
-  z-index: 1002;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.2);
-  animation: tooltipPop 0.4s cubic-bezier(0.2,0.9,0.4,1.1);
+
+@media (max-width: 480px) {
+  .bubble{max-width:94%}
+  .avatar{display:none}
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-actions .topbar-btn span{display:none}
 }
-@keyframes tooltipPop {
-  from { transform: scale(0.9) translateY(10px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
 }
-.tour-tooltip h4 {
-  color: var(--accent2);
-  margin-bottom: 8px;
-  font-size: 18px;
-}
-.tour-tooltip p {
-  color: var(--text);
-  font-size: 13px;
-  line-height: 1.6;
-  margin-bottom: 12px;
-}
-.tour-tooltip .feature-list {
-  margin: 12px 0;
-  padding-left: 20px;
-  color: var(--muted);
-  font-size: 12px;
-}
-.tour-tooltip .feature-list li {
-  margin: 6px 0;
-}
-.tour-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-.tour-btn {
-  padding: 8px 16px;
-  border-radius: 30px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  transition: all 0.2s;
-}
-.tour-btn-next {
-  background: var(--accent);
-  color: white;
-}
-.tour-btn-next:hover {
-  background: #3b82f6;
-}
-.tour-btn-skip {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-}
-.tour-btn-skip:hover {
-  border-color: var(--accent2);
-  color: var(--accent2);
-}
-.tour-progress {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1e293b;
-  padding: 6px 16px;
-  border-radius: 30px;
-  font-size: 12px;
-  color: var(--accent2);
-  z-index: 1002;
-  border: 1px solid var(--accent2);
-}
-@media (max-width: 640px) {
-  .tour-tooltip { max-width: 280px; padding: 16px; }
-  .gate-box { padding: 20px; }
-  .wa-option { flex-direction: column; text-align: center; }
-}
+.chat-row{animation:fadeUp .2s ease-out}
 </style>
 </head>
 <body>
 
-<!-- API KEY GATE - DENGAN INFO LENGKAP -->
+<!-- GATE -->
 <div class="gate" id="gate">
   <div class="gate-box">
-    <h2>⚡ Alarich AI</h2>
-    <p style="margin-bottom:16px;">Asisten cerdas dengan <strong>4 Mode</strong> (Akademik, Deep Talk, Latihan Soal, Agama) + <strong>6 Pilihan Agama</strong>. Multi bahasa otomatis.</p>
-    
-    <h3>🔑 Cara Mendapatkan API Key</h3>
-    <p>Alarich AI butuh API Key untuk bekerja. Ada <strong>2 cara</strong>:</p>
-    
-    <!-- OPTION 1: MANTA KE ADMIN -->
-    <div class="wa-option">
-      <div class="method-icon">📱</div>
-      <div style="flex:1">
-        <strong style="color:var(--whatsapp)">Opsi 1: Minta ke Admin</strong>
-        <p style="font-size:12px; margin:4px 0;">Hubungi WhatsApp untuk dibantu mendapatkan key (gratis & cepat)</p>
-      </div>
-      <a href="https://wa.me/6287821424236?text=Halo%20Admin%2C%20saya%20mau%20minta%20API%20Key%20untuk%20Alarich%20AI" target="_blank">
-        💬 +62 878-2142-4236
+    <div class="gate-logo">
+      <div class="logo-icon">⚡</div>
+      <h2>Alarich AI</h2>
+    </div>
+    <p>Asisten cerdas dengan 4 Mode + 6 Agama. Perlu API Key untuk mulai.</p>
+
+    <div class="gate-section">
+      <h3>📱 Opsi 1 — Minta ke Admin (Gratis & Cepat)</h3>
+      <a class="wa-btn" href="https://wa.me/6287821424236?text=Halo%20Admin%2C%20saya%20mau%20minta%20API%20Key%20untuk%20Alarich%20AI" target="_blank">
+        💬 WhatsApp +62 878-2142-4236
       </a>
     </div>
-    
-    <!-- OPTION 2: BUAT SENDIRI -->
-    <div style="background:#0b1220; border-radius:12px; padding:12px; margin:12px 0;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span class="method-icon">🌐</span>
-        <strong>Opsi 2: Buat Sendiri (Gratis)</strong>
-      </div>
-      <p style="font-size:12px; margin-bottom:8px;">Buat API Key gratis dari Google AI Studio:</p>
-      <ol style="margin-left:20px; font-size:12px; color:var(--muted); line-height:1.6;">
+
+    <div class="gate-section">
+      <h3>🌐 Opsi 2 — Buat Sendiri (Gratis)</h3>
+      <ol>
         <li>Buka <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent2)">aistudio.google.com/app/apikey</a></li>
-        <li>Login dengan akun Google (gratis)</li>
-        <li>Klik "Create API Key" → pilih "Generate API key"</li>
-        <li>Copy key yang diawali <code style="background:#000;padding:2px 4px;border-radius:4px;">AIza...</code></li>
-        <li>Tempel di bawah lalu klik Simpan</li>
+        <li>Login Google → Klik "Create API Key"</li>
+        <li>Copy key, tempel di bawah</li>
       </ol>
-      <div class="api-example">
-        📋 Contoh API Key: <span style="color:#fcd34d">AIzaSyD3fG5hJkLmN... (panjang)</span>
-      </div>
+      <div class="api-example">Contoh: <span style="color:#fcd34d">AIzaSyD3fG5hJkL...</span></div>
     </div>
-    
-    <h3>📝 Tempel API Key di sini</h3>
-    <div class="input-group">
+
+    <div class="key-wrap">
       <input type="password" id="apiKeyInput" placeholder="Tempel API Key (AIza... atau sk-or-v1-...)" oninput="onKeyInput()">
-      <div class="key-icons">
-        <button class="key-icon-btn" onclick="togglePasswordVisibility()">👁️</button>
-        <button class="key-icon-btn" onclick="clearApiKeyInput()">✕</button>
+      <div class="key-actions">
+        <button class="key-action-btn" onclick="toggleKeyVis()" title="Tampilkan">👁️</button>
+        <button class="key-action-btn" onclick="clearKey()" title="Hapus">✕</button>
       </div>
     </div>
-    <div id="modelPickerWrap" class="hidden" style="margin-bottom:10px">
-      <select id="orModel" style="width:100%;padding:10px;border-radius:10px;background:#0b1220;color:var(--text);margin-top:6px">
-        <option value="openai/gpt-4o-mini">openai/gpt-4o-mini</option>
-        <option value="google/gemini-2.0-flash-001">google/gemini-2.0-flash-001</option>
+    <div id="orWrap" style="display:none">
+      <select class="or-model-select" id="orModel">
+        <option value="openai/gpt-4o-mini">GPT-4o Mini (OpenRouter)</option>
+        <option value="openai/gpt-4o">GPT-4o (OpenRouter)</option>
+        <option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash (OpenRouter)</option>
+        <option value="anthropic/claude-3-haiku">Claude 3 Haiku (OpenRouter)</option>
       </select>
-      <p style="font-size:11px; margin-top:5px;">Key OpenRouter diawali <code>sk-or-v1-</code></p>
     </div>
-    <button onclick="saveApiKey()">✅ Simpan & Mulai</button>
-    
-    <p style="font-size:11px; margin-top:12px; text-align:center;">🔒 Key disimpan hanya di perangkat ini (localStorage). Aman dan privat.</p>
+    <button class="primary-btn" onclick="saveKey()">✅ Simpan & Mulai</button>
+    <p class="gate-note">🔒 API Key hanya tersimpan di perangkat kamu (localStorage). Tidak dikirim ke server manapun.</p>
   </div>
 </div>
 
-<!-- TUTORIAL INTERAKTIF OVERLAY -->
-<div class="tour-overlay" id="tourOverlay">
-  <div class="tour-highlight" id="tourHighlight"></div>
-  <div class="tour-tooltip" id="tourTooltip">
-    <h4 id="tourTitle">✨ Selamat Datang!</h4>
-    <p id="tourDesc">Mari kita kenalan dengan Alarich AI 🤖</p>
-    <div id="tourFeatures" class="feature-list"></div>
-    <div class="tour-buttons">
-      <button class="tour-btn tour-btn-skip" onclick="skipTour()">Lewati</button>
-      <button class="tour-btn tour-btn-next" onclick="nextTour()">Selanjutnya →</button>
-    </div>
-  </div>
-  <div class="tour-progress" id="tourProgress">Langkah 1 / 7</div>
-</div>
-
+<!-- OVERLAY MOBILE -->
 <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
 
-<div class="sidebar" id="sidebar">
-  <div class="logo">⚡ Alarich AI</div>
-  <button class="newchat-btn" id="newChatBtn" onclick="newChat()">+ Chat Baru</button>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-  <div class="mode-select">
-    <select id="modeSelect" onchange="onModeSelectChange()">
-      <option value="academic">📚 Akademik</option>
-      <option value="deeptalk">💭 Deep Talk</option>
-      <option value="exercise">📝 Latihan Soal</option>
-      <option value="religion">✨ Agama</option>
-    </select>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span>Alarich AI</span>
+    </div>
+    <button class="new-btn" onclick="newChat()">
+      <span>✏️</span><span>Chat Baru</span>
+    </button>
   </div>
 
-  <div class="religion-select" id="religionSelect" style="display:none;">
-    <label>🙏 Pilih Agama / Keyakinan</label>
-    <div class="religion-options" id="religionOptions">
-      <div class="religion-btn" data-religion="islam">☪️ Islam</div>
-      <div class="religion-btn" data-religion="kristen">✝️ Kristen</div>
-      <div class="religion-btn" data-religion="katolik">⛪ Katolik</div>
-      <div class="religion-btn" data-religion="hindu">🕉️ Hindu</div>
-      <div class="religion-btn" data-religion="buddha">☸️ Buddha</div>
-      <div class="religion-btn" data-religion="konghucu">☯️ Konghucu</div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Mode</div>
+    <div class="mode-grid" id="modeGrid">
+      <div class="mode-chip" data-mode="academic" onclick="setMode('academic')">📚 Akademik</div>
+      <div class="mode-chip" data-mode="deeptalk" onclick="setMode('deeptalk')">💭 Deep Talk</div>
+      <div class="mode-chip" data-mode="exercise" onclick="setMode('exercise')">📝 Latihan</div>
+      <div class="mode-chip" data-mode="religion" onclick="setMode('religion')">✨ Agama</div>
+    </div>
+
+    <div class="religion-wrap" id="religionWrap" style="display:none">
+      <span class="religion-label">Pilih Keyakinan</span>
+      <div class="religion-grid">
+        <div class="rel-chip" data-rel="islam" onclick="setReligion('islam')">☪️ Islam</div>
+        <div class="rel-chip" data-rel="kristen" onclick="setReligion('kristen')">✝️ Kristen</div>
+        <div class="rel-chip" data-rel="katolik" onclick="setReligion('katolik')">⛪ Katolik</div>
+        <div class="rel-chip" data-rel="hindu" onclick="setReligion('hindu')">🕉️ Hindu</div>
+        <div class="rel-chip" data-rel="buddha" onclick="setReligion('buddha')">☸️ Buddha</div>
+        <div class="rel-chip" data-rel="konghucu" onclick="setReligion('konghucu')">☯️ Konghucu</div>
+      </div>
     </div>
   </div>
 
-  <button class="tutorial-btn" onclick="startTour()">📖 Lihat Tutorial Lagi</button>
+  <div class="history-wrap" id="historyList"></div>
 
-  <div class="history" id="history"></div>
   <div class="sidebar-footer">
-    Riwayat tersimpan di perangkat ini.<br>
-    <span style="cursor:pointer;color:var(--accent2)" onclick="changeApiKey()">Ganti API Key</span>
+    Riwayat tersimpan lokal di perangkat ini.<br>
+    <span class="footer-link" onclick="changeKey()">Ganti API Key</span>
+    &nbsp;·&nbsp;
+    <span class="footer-link" onclick="clearAll()">Hapus Semua</span>
   </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <button class="hamburger" onclick="toggleSidebar(true)">☰</button>
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar(true)">☰</button>
     <span class="mode-badge" id="modeBadge"></span>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="clearChat()" title="Bersihkan chat saat ini">🗑️ <span>Hapus Chat</span></button>
+    </div>
   </div>
-  <div class="chat" id="chat"></div>
-  <div class="input-area">
-    <textarea id="text" placeholder="Tanyakan apa saja..."></textarea>
-    <button class="send" id="sendBtn" onclick="sendMessage()">➤</button>
+
+  <div class="chat-wrap" id="chatWrap">
+    <!-- Welcome shown via JS -->
+  </div>
+
+  <div class="input-bar">
+    <div class="input-inner">
+      <textarea
+        id="inputBox"
+        placeholder="Tanyakan apa saja…"
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize()"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMsg()">➤</button>
+    </div>
+    <div class="input-hint">Enter kirim · Shift+Enter baris baru</div>
   </div>
 </div>
 
 <script>
-const MODEL = "gemini-2.0-flash";
+// ======================== CONFIG ========================
+const GEMINI_MODEL = "gemini-2.0-flash";
 
-// ======================== TUTORIAL INTERAKTIF ========================
-const TOUR_STEPS = [
-  {
-    element: "#modeSelect",
-    title: "🎯 1. Pilih Mode",
-    desc: "Alarich AI punya 4 mode canggih:",
-    features: [
-      "📚 Akademik - Tutor matematika, fisika, kimia (support LaTeX)",
-      "💭 Deep Talk - Teman curhat empatik & hangat",
-      "📝 Latihan Soal - Generator soal otomatis + pembahasan",
-      "✨ Agama - Bimbingan rohani dengan 6 pilihan agama"
-    ],
-    position: "right"
-  },
-  {
-    element: "#religionSelect",
-    title: "🕊️ 2. Pilih Agama (Mode Agama)",
-    desc: "Kalau kamu pilih mode Agama, kamu bisa memilih 6 keyakinan dengan persona berbeda:",
-    features: [
-      "☪️ Islam - Rujukan Al-Qur'an & Hadis, sapaan Assalamu'alaikum",
-      "✝️ Kristen/Katolik - Rujukan Alkitab, sapaan Tuhan memberkati",
-      "🕉️ Hindu - Rujukan Weda & Bhagavad Gita",
-      "☸️ Buddha - Rujukan Tripitaka & Dhammapada",
-      "☯️ Konghucu - Rujukan Si Shu & Wu Jing"
-    ],
-    position: "right",
-    condition: () => document.getElementById("modeSelect").value === "religion"
-  },
-  {
-    element: "#newChatBtn",
-    title: "💬 3. Chat Baru",
-    desc: "Klik tombol ini untuk memulai percakapan baru. Setiap chat punya mode dan agama yang bisa berbeda-beda.",
-    features: [],
-    position: "right"
-  },
-  {
-    element: "#chat",
-    title: "📝 4. Area Chat",
-    desc: "Di sinilah percakapanmu dengan Alarich AI akan muncul. AI bisa mendeteksi bahasa yang kamu pakai (Indonesia, Inggris, Arab, dll) dan menjawab dengan bahasa yang sama.",
-    features: [],
-    position: "left"
-  },
-  {
-    element: "#text",
-    title: "⌨️ 5. Kotak Ketik",
-    desc: "Tulis pertanyaan atau curhatanmu di sini. Tekan Enter untuk mengirim, atau Shift+Enter untuk pindah baris.",
-    features: [],
-    position: "top"
-  },
-  {
-    element: "#sendBtn",
-    title: "📤 6. Kirim Pesan",
-    desc: "Klik tombol ini atau tekan Enter untuk mengirim pesan ke Alarich AI.",
-    features: [],
-    position: "left"
-  },
-  {
-    element: "#history",
-    title: "📜 7. Riwayat Chat",
-    desc: "Semua percakapanmu tersimpan di sini. Klik chat lama untuk melanjutkan, atau klik ✕ untuk menghapus.",
-    features: [],
-    position: "right"
-  }
-];
+// ======================== PROMPTS ========================
+const BASE = `Kamu adalah Alarich AI, asisten AI yang cerdas, hangat, dan membantu.
 
-let currentStep = 0;
-let isTourActive = false;
-let hasShownTour = localStorage.getItem("alarich_tour_shown");
+IDENTITAS:
+- Nama: Alarich AI
+- Jika ditanya siapa pembuatmu: "Identitas master saya bersifat rahasia. Kamu bisa panggil beliau Azure 😊"
+- Jangan menyebut dirimu sebagai Google, Gemini, OpenAI, atau AI apapun selain Alarich AI
 
-function getElementRect(selector) {
-  const el = document.querySelector(selector);
-  if (!el) return null;
-  return el.getBoundingClientRect();
-}
+KOMUNIKASI:
+- Deteksi bahasa yang digunakan pengguna dan BALAS dalam bahasa yang SAMA
+- Gunakan bahasa natural, ramah, dan tidak kaku
+- Sesuaikan panjang jawaban dengan kompleksitas pertanyaan
+- Hindari penggunaan kata "Certainly!", "Sure!", "Absolutely!" di awal jawaban
 
-function updateTourHighlight() {
-  const step = TOUR_STEPS[currentStep];
-  if (!step) return;
-  
-  if (step.condition && !step.condition()) {
-    currentStep++;
-    if (currentStep >= TOUR_STEPS.length) {
-      endTour();
-    } else {
-      updateTourHighlight();
-    }
-    return;
-  }
-  
-  const rect = getElementRect(step.element);
-  if (!rect) {
-    currentStep++;
-    if (currentStep >= TOUR_STEPS.length) {
-      endTour();
-    } else {
-      updateTourHighlight();
-    }
-    return;
-  }
-  
-  const highlight = document.getElementById("tourHighlight");
-  highlight.style.top = rect.top - 8 + "px";
-  highlight.style.left = rect.left - 8 + "px";
-  highlight.style.width = rect.width + 16 + "px";
-  highlight.style.height = rect.height + 16 + "px";
-  
-  const tooltip = document.getElementById("tourTooltip");
-  let tooltipTop, tooltipLeft;
-  
-  switch(step.position) {
-    case "right":
-      tooltipTop = rect.top;
-      tooltipLeft = rect.right + 20;
-      if (tooltipLeft + 320 > window.innerWidth) tooltipLeft = rect.left - 340;
-      break;
-    case "left":
-      tooltipTop = rect.top;
-      tooltipLeft = rect.left - 340;
-      if (tooltipLeft < 10) tooltipLeft = rect.right + 20;
-      break;
-    case "top":
-      tooltipTop = rect.top - 180;
-      tooltipLeft = rect.left;
-      break;
-    default:
-      tooltipTop = rect.bottom + 20;
-      tooltipLeft = rect.left;
-  }
-  
-  tooltip.style.top = Math.max(10, Math.min(tooltipTop, window.innerHeight - 250)) + "px";
-  tooltip.style.left = Math.max(10, Math.min(tooltipLeft, window.innerWidth - 340)) + "px";
-  
-  document.getElementById("tourTitle").innerHTML = step.title;
-  document.getElementById("tourDesc").innerHTML = step.desc;
-  const featuresHtml = step.features.map(f => `<li>${f}</li>`).join("");
-  document.getElementById("tourFeatures").innerHTML = featuresHtml ? `<ul>${featuresHtml}</ul>` : "";
-  document.getElementById("tourProgress").innerHTML = `Langkah ${currentStep+1} / ${TOUR_STEPS.length}`;
-}
+FORMATTING:
+- Gunakan markdown untuk struktur yang jelas
+- Untuk kode: gunakan code block dengan bahasa yang tepat
+- Untuk rumus matematika: gunakan LaTeX ($...$ inline, $$...$$ display)
+- Gunakan tabel jika membandingkan banyak item
+- Bullet point hanya jika memang perlu, bukan untuk setiap jawaban`;
 
-function nextTour() {
-  currentStep++;
-  if (currentStep >= TOUR_STEPS.length) {
-    endTour();
-  } else {
-    updateTourHighlight();
-  }
-}
+const PROMPTS = {
+  academic: BASE + `
 
-function skipTour() { endTour(); }
-function endTour() {
-  isTourActive = false;
-  document.getElementById("tourOverlay").classList.remove("active");
-  localStorage.setItem("alarich_tour_shown", "true");
-}
-function startTour() {
-  currentStep = 0;
-  isTourActive = true;
-  document.getElementById("tourOverlay").classList.add("active");
-  setTimeout(() => updateTourHighlight(), 100);
-}
-function checkAndStartTour() {
-  if (!hasShownTour || hasShownTour !== "true") {
-    setTimeout(() => startTour(), 800);
-  }
-}
+MODE: Tutor Akademik
+Kamu adalah tutor akademik yang sangat ahli dalam matematika, fisika, kimia, biologi, dan ilmu lainnya.
 
-// ======================== BASE PERSONA ========================
-const BASE_PERSONA = `IDENTITAS: Kamu Alarich AI. Ramah, hangat, sopan. Jika ditanya pembuat: "Maaf, master saya menyembunyikan identitas. Panggil Azure 😊". MULTI BAHASA: Deteksi bahasa user dan jawab dengan bahasa yang SAMA persis.`;
+CARA MENJAWAB SOAL:
+1. Identifikasi konsep yang dibutuhkan
+2. Jelaskan pendekatan penyelesaian
+3. Kerjakan langkah demi langkah dengan detail
+4. Berikan jawaban akhir yang jelas
+5. Jika perlu, tambahkan catatan atau tips penting
 
-const RELIGION_PROMPTS = {
-  islam: BASE_PERSONA + `Kamu Alarich Islamic AI. Sapaan "Assalamu'alaikum", "Insya Allah". Tone lembut, teduh. Sumber: Al-Qur'an + Hadis shahih.`,
-  kristen: BASE_PERSONA + `Kamu Alarich Kristen AI. Sapaan "Tuhan memberkati". Tone penuh kasih. Sumber: Alkitab.`,
-  katolik: BASE_PERSONA + `Kamu Alarich Katolik AI. Sapaan "Tuhan memberkati". Sumber: Alkitab Katolik + Katekismus.`,
-  hindu: BASE_PERSONA + `Kamu Alarich Hindu AI. Sapaan "Om Swastyastu". Tone tenang, filosofis. Sumber: Weda, Bhagavad Gita.`,
-  buddha: BASE_PERSONA + `Kamu Alarich Buddha AI. Sapaan "Namo Buddhaya". Tone penuh welas asih. Sumber: Tripitaka, Dhammapada.`,
-  konghucu: BASE_PERSONA + `Kamu Alarich Konghucu AI. Sapaan "Wei De Dong Tian". Tone bijak. Sumber: Si Shu, Wu Jing.`
+RUMUS: Selalu gunakan LaTeX untuk rumus. Contoh: $F = ma$, $$E = mc^2$$
+
+Jika pertanyaan kurang jelas, minta klarifikasi dengan sopan.`,
+
+  deeptalk: BASE + `
+
+MODE: Deep Talk — Teman Bicara
+Kamu adalah teman bicara yang empatik, hangat, dan penuh pengertian.
+
+PRINSIP:
+- Dengarkan dengan sungguh-sungguh sebelum memberi saran
+- Validasi perasaan pengguna terlebih dahulu
+- Jangan langsung menghakimi atau memberi solusi tanpa diminta
+- Gunakan pertanyaan terbuka untuk menggali lebih dalam
+- Jawaban 3-6 kalimat, natural seperti percakapan teman
+- Tidak perlu selalu memberikan solusi — terkadang cukup hadir dan mendengarkan
+- JANGAN berikan diagnosis medis atau psikologis
+
+Jika ada tanda-tanda krisis serius (menyakiti diri sendiri dll), sarankan dengan lembut untuk menghubungi profesional.`,
+
+  exercise: BASE + `
+
+MODE: Generator Latihan Soal
+Kamu adalah pembuat soal latihan yang interaktif dan edukatif.
+
+KETIKA DIMINTA MEMBUAT SOAL:
+Format setiap soal seperti ini:
+
+**Soal N** *(tingkat: mudah/sedang/sulit)*
+[pertanyaan yang jelas dan lengkap]
+
+<details>
+<summary>💡 Lihat Pembahasan & Jawaban</summary>
+
+**Pembahasan:**
+[langkah-langkah penyelesaian yang detail]
+
+**Jawaban: [jawaban akhir]**
+</details>
+
+---
+
+VARIASI:
+- Buat soal dengan tingkat kesulitan bertahap (mudah → sedang → sulit)
+- Sertakan konteks yang relevan dan realistis
+- Untuk matematika/sains: sertakan unit dan satuan yang tepat
+
+Jika pengguna tidak menyebutkan jumlah soal, buat 5 soal.
+Jika tidak menyebutkan topik, tanyakan terlebih dahulu.`,
+
+  islam: BASE + `
+
+MODE: Bimbingan Islam
+Kamu adalah asisten spiritual Islam yang berpengetahuan luas, lembut, dan bijaksana.
+
+IDENTITAS SPIRITUAL:
+- Gunakan sapaan "Assalamu'alaikum Warahmatullahi Wabarakatuh" di awal percakapan
+- Sertakan "Insya Allah", "Alhamdulillah", "Subhanallah" secara natural dan kontekstual
+- Akhiri dengan "Wallahu a'lam bishawab" untuk pertanyaan hukum atau tafsir
+
+SUMBER RUJUKAN (prioritas urutan ini):
+1. Al-Qur'an (sertakan nama surat dan ayat: QS. Al-Baqarah: 2)
+2. Hadis Shahih (sertakan perawi: HR. Bukhari, HR. Muslim)
+3. Pendapat ulama terkemuka dengan menyebutkan nama
+4. Ijma dan Qiyas jika relevan
+
+PRINSIP PENTING:
+- Sajikan perbedaan pendapat ulama (khilafiyah) secara adil jika ada
+- Tidak memaksakan satu mazhab tertentu
+- Untuk pertanyaan yang kompleks, sarankan berkonsultasi dengan ulama lokal
+- Sampaikan dengan kasih sayang, bukan menghakimi`,
+
+  kristen: BASE + `
+
+MODE: Bimbingan Kristen
+Kamu adalah asisten spiritual Kristen yang berpengetahuan, penuh kasih, dan bijaksana.
+
+IDENTITAS SPIRITUAL:
+- Gunakan sapaan "Tuhan memberkatimu" atau "Kasih Karunia dan Damai Sejahtera"
+- Sampaikan dengan penuh kasih sebagaimana ajaran Kristus
+
+SUMBER RUJUKAN:
+1. Alkitab (sertakan referensi: Yohanes 3:16, Roma 8:28)
+2. Ajaran para Bapa Gereja
+3. Tradisi denominasi Protestan (Reformed, Lutheran, Baptist, dll)
+
+PRINSIP:
+- Hormati keragaman denominasi Kristen
+- Fokus pada Injil dan ajaran Yesus Kristus
+- Untuk pertanyaan teologis kompleks, akui perbedaan pandangan denominasi`,
+
+  katolik: BASE + `
+
+MODE: Bimbingan Katolik
+Kamu adalah asisten spiritual Katolik yang berpengetahuan luas tentang ajaran Gereja Katolik.
+
+IDENTITAS SPIRITUAL:
+- Gunakan sapaan "Tuhan memberkatimu" atau "Salam dalam Kristus"
+
+SUMBER RUJUKAN:
+1. Alkitab Katolik (termasuk deuterokanonika)
+2. Katekismus Gereja Katolik (KGK)
+3. Ajaran Magisterium Gereja
+4. Bapa Gereja (St. Agustinus, St. Tomas Aquinas, dll)
+5. Ensiklik dan dokumen Paus
+
+PRINSIP:
+- Setia pada ajaran resmi Gereja Katolik
+- Hormati Tradisi Suci dan Kitab Suci secara seimbang
+- Sertakan referensi nomor KGK jika relevan`,
+
+  hindu: BASE + `
+
+MODE: Bimbingan Hindu
+Kamu adalah asisten spiritual Hindu yang berpengetahuan mendalam dan bijaksana.
+
+IDENTITAS SPIRITUAL:
+- Gunakan sapaan "Om Swastyastu" (Semoga dalam lindungan Tuhan)
+- Gunakan "Om Shanti Shanti Shanti" sebagai penutup doa
+
+SUMBER RUJUKAN:
+1. Weda (Rg Weda, Sama Weda, Yajur Weda, Atharwa Weda)
+2. Bhagavad Gita (sertakan bab dan sloka: BG 2.47)
+3. Upanishad
+4. Purana (Mahabharata, Ramayana)
+5. Smriti dan Dharmasastra
+
+PRINSIP:
+- Hormati keragaman aliran dalam Hindu (Vaishnava, Shaiva, Shakta, dll)
+- Jelaskan konsep-konsep seperti Dharma, Karma, Moksha, Atman, Brahman
+- Sampaikan dengan ketenangan dan kebijaksanaan`,
+
+  buddha: BASE + `
+
+MODE: Bimbingan Buddha
+Kamu adalah asisten spiritual Buddha yang penuh welas asih dan kebijaksanaan.
+
+IDENTITAS SPIRITUAL:
+- Gunakan sapaan "Namo Buddhaya" (Hormat kepada Buddha)
+- Sampaikan dengan welas asih (karuna) dan kebijaksanaan (prajna)
+
+SUMBER RUJUKAN:
+1. Tripitaka (Vinaya Pitaka, Sutta Pitaka, Abhidhamma Pitaka)
+2. Dhammapada (sertakan nomor bait jika relevan)
+3. Ajaran berbagai tradisi: Theravada, Mahayana, Vajrayana
+4. Ajaran guru besar: Dalai Lama, Thich Nhat Hanh, dll
+
+PRINSIP:
+- Jelaskan Empat Kebenaran Mulia, Delapan Jalan Mulia jika relevan
+- Tekankan praktek meditasi dan mindfulness
+- Hormati keragaman aliran Buddha
+- Sampaikan dengan tenang, non-judgmental`,
+
+  konghucu: BASE + `
+
+MODE: Bimbingan Konghucu
+Kamu adalah asisten spiritual Konghucu yang bijaksana dan berpengetahuan.
+
+IDENTITAS SPIRITUAL:
+- Gunakan sapaan "Wei De Dong Tian" (Hanya Kebajikan Tuhan yang Maha Besar)
+- Sampaikan dengan kebijaksanaan dan kesopanan khas Konghucu
+
+SUMBER RUJUKAN:
+1. Si Shu (Empat Kitab): Da Xue, Zhong Yong, Lun Yu, Mengzi
+2. Wu Jing (Lima Klasik): Yi Jing, Shu Jing, Shi Jing, Li Ji, Chun Qiu
+3. Ajaran Kongzi (Confucius) dan Mengzi
+4. Tradisi Ru Jiao (Agama Konghucu) di Indonesia
+
+PRINSIP:
+- Tekankan nilai Ren (Cinta Kasih), Yi (Kebenaran), Li (Kesusilaan), Zhi (Kebijaksanaan), Xin (Kepercayaan)
+- Hubungkan ajaran dengan kehidupan sehari-hari
+- Hormati leluhur dan hubungan antar manusia (wu lun)`
 };
 
-const MODE_PROMPTS = {
-  academic: BASE_PERSONA + `Kamu tutor akademik. Gunakan LaTeX untuk rumus. Format: ## Konsep → ## Rumus → ## Penyelesaian → ## Jawaban.`,
-  deeptalk: BASE_PERSONA + `Kamu teman curhat empatik. Jawaban singkat 3-8 kalimat. Jangan diagnosis medis.`,
-  exercise: BASE_PERSONA + `Kamu generator soal. Buat 5 soal. Format: **Soal N** lalu <details>**Pembahasan:** + **Jawaban**</details>.`
+const RELIGION_INFO = {
+  islam:    {label:"☪️ Islam",    icon:"☪️", badgeCls:"islam"},
+  kristen:  {label:"✝️ Kristen",  icon:"✝️", badgeCls:"kristen"},
+  katolik:  {label:"⛪ Katolik",  icon:"⛪", badgeCls:"katolik"},
+  hindu:    {label:"🕉️ Hindu",    icon:"🕉️", badgeCls:"hindu"},
+  buddha:   {label:"☸️ Buddha",   icon:"☸️", badgeCls:"buddha"},
+  konghucu: {label:"☯️ Konghucu", icon:"☯️", badgeCls:"konghucu"}
 };
 
-// Global variables
-let chats = JSON.parse(localStorage.getItem("alarich_chats_v4") || "{}");
-let activeId = localStorage.getItem("alarich_active_chat");
+const MODE_INFO = {
+  academic: {label:"📚 Akademik",     badgeCls:"academic"},
+  deeptalk: {label:"💭 Deep Talk",    badgeCls:"deeptalk"},
+  exercise: {label:"📝 Latihan Soal", badgeCls:"exercise"},
+  religion: {label:"✨ Agama",        badgeCls:"islam"}
+};
+
+// ======================== STATE ========================
+let chats   = JSON.parse(localStorage.getItem("alarich_chats_v5") || "{}");
+let activeId = localStorage.getItem("alarich_active_v5") || null;
+let currentMode     = localStorage.getItem("alarich_mode") || "academic";
 let currentReligion = localStorage.getItem("alarich_religion") || "islam";
 
-function genId(){ return "c" + Date.now() + Math.random().toString(36).slice(2,7); }
-function saveChats(){ localStorage.setItem("alarich_chats_v4", JSON.stringify(chats)); }
-function detectProvider(key){ return key.startsWith("sk-or-") ? "openrouter" : "gemini"; }
+// ======================== UTILS ========================
+function genId(){ return "c" + Date.now() + Math.random().toString(36).slice(2,6) }
+function save(){ localStorage.setItem("alarich_chats_v5", JSON.stringify(chats)) }
+function saveActive(){ localStorage.setItem("alarich_active_v5", activeId) }
+function saveMode(){ localStorage.setItem("alarich_mode", currentMode) }
+function saveRel(){ localStorage.setItem("alarich_religion", currentReligion) }
 
-// API Key Gate
+function showToast(msg, dur=2200){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), dur);
+}
+
+function escHtml(s){ return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+
+function getSystemPrompt(chat){
+  const m = chat.mode;
+  if(m === "religion" && chat.religion) return PROMPTS[chat.religion] || PROMPTS.islam;
+  return PROMPTS[m] || PROMPTS.academic;
+}
+
+// ======================== API KEY ========================
 function onKeyInput(){
-  const val = document.getElementById("apiKeyInput").value.trim();
-  document.getElementById("modelPickerWrap").classList.toggle("hidden", detectProvider(val) !== "openrouter");
+  const v = document.getElementById("apiKeyInput").value.trim();
+  document.getElementById("orWrap").style.display = v.startsWith("sk-or-") ? "block" : "none";
 }
-function togglePasswordVisibility(){
+function toggleKeyVis(){
   const inp = document.getElementById("apiKeyInput");
-  if(inp.type === "password"){ inp.type="text"; document.querySelector("#togglePasswordBtn").textContent="🙈"; }
-  else{ inp.type="password"; document.querySelector("#togglePasswordBtn").textContent="👁️"; }
+  inp.type = inp.type === "password" ? "text" : "password";
 }
-function clearApiKeyInput(){ document.getElementById("apiKeyInput").value=""; onKeyInput(); }
-function saveApiKey(){
-  const val = document.getElementById("apiKeyInput").value.trim();
-  if(!val){ alert("Masukkan API Key terlebih dahulu!"); return; }
-  localStorage.setItem("alarich_api_key", val);
-  localStorage.setItem("alarich_provider", detectProvider(val));
-  if(detectProvider(val) === "openrouter"){
-    localStorage.setItem("alarich_or_model", document.getElementById("orModel").value);
-  }
-  document.getElementById("gate").classList.add("hidden");
-  checkAndStartTour();
-}
-function changeApiKey(){
-  document.getElementById("apiKeyInput").value = localStorage.getItem("alarich_api_key") || "";
-  document.getElementById("gate").classList.remove("hidden");
+function clearKey(){
+  document.getElementById("apiKeyInput").value = "";
   onKeyInput();
 }
-function checkApiKey(){ if(!localStorage.getItem("alarich_api_key")) document.getElementById("gate").classList.remove("hidden"); }
+function saveKey(){
+  const v = document.getElementById("apiKeyInput").value.trim();
+  if(!v){ showToast("⚠️ Masukkan API Key terlebih dahulu"); return; }
+  localStorage.setItem("alarich_api_key", v);
+  const prov = v.startsWith("sk-or-") ? "openrouter" : "gemini";
+  localStorage.setItem("alarich_provider", prov);
+  if(prov === "openrouter") localStorage.setItem("alarich_or_model", document.getElementById("orModel").value);
+  document.getElementById("gate").style.display = "none";
+  showToast("✅ API Key tersimpan!");
+}
+function changeKey(){
+  document.getElementById("apiKeyInput").value = localStorage.getItem("alarich_api_key") || "";
+  onKeyInput();
+  document.getElementById("gate").style.display = "flex";
+}
+function checkGate(){
+  if(!localStorage.getItem("alarich_api_key")){
+    document.getElementById("gate").style.display = "flex";
+  }
+}
 
-function toggleSidebar(open){ 
+// ======================== SIDEBAR ========================
+function toggleSidebar(open){
   document.getElementById("sidebar").classList.toggle("open", open);
   document.getElementById("overlay").classList.toggle("show", open);
 }
-function getCurrentUIMode(){ return document.getElementById("modeSelect").value === "religion" ? "religion" : document.getElementById("modeSelect").value; }
-function updateReligionUI(){
-  const isReligionMode = (getCurrentUIMode() === "religion");
-  document.getElementById("religionSelect").style.display = isReligionMode ? "block" : "none";
-  document.querySelectorAll(".religion-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.religion === currentReligion);
+
+// ======================== MODE & RELIGION ========================
+function setMode(m){
+  if(currentMode === m) return;
+  currentMode = m; saveMode();
+  renderModeUI();
+  updateBadge();
+  // if active chat has no messages, update its mode
+  const c = chats[activeId];
+  if(c && c.messages.length === 0){
+    c.mode = m;
+    c.religion = (m === "religion") ? currentReligion : null;
+    save();
+    renderWelcome();
+  }
+}
+function setReligion(r){
+  currentReligion = r; saveRel();
+  renderModeUI();
+  updateBadge();
+  const c = chats[activeId];
+  if(c && c.messages.length === 0 && c.mode === "religion"){
+    c.religion = r; save(); renderWelcome();
+  }
+}
+function renderModeUI(){
+  document.querySelectorAll(".mode-chip").forEach(el=>{
+    el.classList.toggle("active", el.dataset.mode === currentMode);
+  });
+  const isRel = currentMode === "religion";
+  document.getElementById("religionWrap").style.display = isRel ? "block" : "none";
+  document.querySelectorAll(".rel-chip").forEach(el=>{
+    el.classList.toggle("active", el.dataset.rel === currentReligion);
   });
 }
-function setReligion(religion){
-  currentReligion = religion;
-  localStorage.setItem("alarich_religion", religion);
-  updateReligionUI();
-  updateBadge();
-  const chat = chats[activeId];
-  if(chat && chat.messages.length === 0 && getCurrentUIMode() === "religion"){
-    chat.religion = currentReligion;
-    saveChats();
-    renderChat();
-  }
-}
-const RELIGION_INFO = {
-  islam: { label: "☪️ Islam", cls: "mode-islamic" },
-  kristen: { label: "✝️ Kristen", cls: "mode-kristen" },
-  katolik: { label: "⛪ Katolik", cls: "mode-kristen" },
-  hindu: { label: "🕉️ Hindu", cls: "mode-hindu" },
-  buddha: { label: "☸️ Buddha", cls: "mode-buddha" },
-  konghucu: { label: "☯️ Konghucu", cls: "mode-konghucu" }
-};
 function updateBadge(){
-  const uiMode = getCurrentUIMode();
-  let text = "", cls = "";
-  if(uiMode === "academic"){ text="📚 Akademik"; cls="mode-academic"; }
-  else if(uiMode === "deeptalk"){ text="💭 Deep Talk"; cls="mode-deeptalk"; }
-  else if(uiMode === "exercise"){ text="📝 Latihan Soal"; cls="mode-exercise"; }
-  else{ const relInfo = RELIGION_INFO[currentReligion]; text = `${relInfo.label} · Rohani`; cls = relInfo.cls; }
-  document.getElementById("modeBadge").textContent = text;
-  document.getElementById("modeBadge").className = "mode-badge " + cls;
-}
-function onModeSelectChange(){
-  const newUIMode = getCurrentUIMode();
-  updateReligionUI();
-  updateBadge();
-  const chat = chats[activeId];
-  if(!chat) return;
-  if(chat.messages.length === 0){
-    if(newUIMode === "religion"){ chat.mode = "religion"; chat.religion = currentReligion; }
-    else { chat.mode = newUIMode; }
-    saveChats();
-    renderChat();
+  const badge = document.getElementById("modeBadge");
+  if(currentMode === "religion"){
+    const ri = RELIGION_INFO[currentReligion];
+    badge.textContent = ri.label + " · Rohani";
+    badge.className = "mode-badge " + ri.badgeCls;
+  } else {
+    const mi = MODE_INFO[currentMode];
+    badge.textContent = mi.label;
+    badge.className = "mode-badge " + mi.badgeCls;
   }
 }
+
+// ======================== CHAT MANAGEMENT ========================
 function newChat(){
-  const uiMode = getCurrentUIMode();
-  const mode = uiMode === "religion" ? "religion" : uiMode;
   const id = genId();
-  chats[id] = { id, mode, title: "Chat baru", createdAt: Date.now(), messages: [], religion: (mode === "religion") ? currentReligion : null };
-  activeId = id;
-  saveChats();
-  localStorage.setItem("alarich_active_chat", activeId);
-  renderHistory();
-  renderChat();
+  const mode = currentMode;
+  chats[id] = {
+    id, mode,
+    religion: mode === "religion" ? currentReligion : null,
+    title: "Chat baru",
+    createdAt: Date.now(),
+    messages: []
+  };
+  activeId = id; save(); saveActive();
+  renderHistory(); renderMessages(); updateBadge();
   toggleSidebar(false);
+  document.getElementById("inputBox").focus();
 }
+
 function switchChat(id){
-  activeId = id;
-  localStorage.setItem("alarich_active_chat", activeId);
-  const chat = chats[id];
-  const modeSelect = document.getElementById("modeSelect");
-  if(chat.mode === "religion"){ modeSelect.value = "religion"; if(chat.religion) currentReligion = chat.religion; }
-  else { modeSelect.value = chat.mode; }
-  updateReligionUI();
-  updateBadge();
-  renderHistory();
-  renderChat();
+  activeId = id; saveActive();
+  const c = chats[id];
+  currentMode = c.mode;
+  if(c.religion) currentReligion = c.religion;
+  saveMode(); saveRel();
+  renderModeUI(); updateBadge(); renderHistory(); renderMessages();
   toggleSidebar(false);
 }
+
 function deleteChat(id, ev){
   ev.stopPropagation();
-  if(!confirm("Hapus chat ini?")) return;
-  delete chats[id];
-  saveChats();
-  if(activeId === id){ activeId = null; ensureActiveChat(); }
-  renderHistory();
-  renderChat();
+  if(!confirm("Hapus percakapan ini?")) return;
+  delete chats[id]; save();
+  if(activeId === id){
+    activeId = null;
+    const ids = Object.keys(chats);
+    if(ids.length) activeId = ids.sort((a,b)=>chats[b].createdAt-chats[a].createdAt)[0];
+    else { newChat(); return; }
+    saveActive();
+  }
+  renderHistory(); renderMessages();
 }
-function ensureActiveChat(){
+
+function clearChat(){
+  const c = chats[activeId];
+  if(!c || c.messages.length === 0){ showToast("Chat sudah kosong"); return; }
+  if(!confirm("Hapus semua pesan di chat ini?")) return;
+  c.messages = []; c.title = "Chat baru"; save();
+  renderMessages(); renderHistory();
+  showToast("🗑️ Chat dibersihkan");
+}
+
+function clearAll(){
+  if(!confirm("Hapus SEMUA riwayat percakapan? Ini tidak bisa dibatalkan.")) return;
+  chats = {}; save();
+  activeId = null;
+  newChat();
+  showToast("🗑️ Semua riwayat dihapus");
+}
+
+function ensureChat(){
   if(activeId && chats[activeId]) return;
-  const ids = Object.keys(chats);
-  if(ids.length){ activeId = ids.sort((a,b)=>chats[b].createdAt - chats[a].createdAt)[0]; }
-  else { newChat(); return; }
-  localStorage.setItem("alarich_active_chat", activeId);
+  const ids = Object.keys(chats).sort((a,b)=>chats[b].createdAt-chats[a].createdAt);
+  if(ids.length){ activeId = ids[0]; saveActive(); }
+  else newChat();
 }
+
+// ======================== RENDER ========================
 function renderHistory(){
-  const el = document.getElementById("history");
-  el.innerHTML = "";
-  const ids = Object.keys(chats).sort((a,b)=>chats[b].createdAt - chats[a].createdAt);
-  for(const id of ids){
+  const el = document.getElementById("historyList");
+  const ids = Object.keys(chats).sort((a,b)=>chats[b].createdAt-chats[a].createdAt);
+  if(ids.length === 0){
+    el.innerHTML = `<div style="padding:12px 10px;font-size:12px;color:var(--text3);text-align:center">Belum ada percakapan</div>`;
+    return;
+  }
+  el.innerHTML = ids.map(id=>{
     const c = chats[id];
-    let icon = c.mode === "academic" ? "📚" : (c.mode === "deeptalk" ? "💭" : (c.mode === "exercise" ? "📝" : (RELIGION_INFO[c.religion]?.label?.slice(0,2) || "✨")));
-    const div = document.createElement("div");
-    div.className = "history-item" + (id===activeId ? " active":"");
-    div.onclick = ()=>switchChat(id);
-    div.innerHTML = `<span>${icon}</span><span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(c.title)}</span><span class="del" onclick="deleteChat('${id}',event)">✕</span>`;
-    el.appendChild(div);
+    let icon;
+    if(c.mode === "academic") icon = "📚";
+    else if(c.mode === "deeptalk") icon = "💭";
+    else if(c.mode === "exercise") icon = "📝";
+    else icon = RELIGION_INFO[c.religion]?.icon || "✨";
+    return `<div class="history-item${id===activeId?" active":""}" onclick="switchChat('${id}')">
+      <span class="h-icon">${icon}</span>
+      <span class="h-title">${escHtml(c.title)}</span>
+      <span class="h-del" onclick="deleteChat('${id}',event)" title="Hapus">✕</span>
+    </div>`;
+  }).join("");
+}
+
+function renderWelcome(){
+  const c = chats[activeId];
+  const chatEl = document.getElementById("chatWrap");
+  const mode = c?.mode || "academic";
+  const rel = c?.religion || currentReligion;
+
+  const suggestions = {
+    academic: ["Jelaskan hukum Newton", "Cara kerja integral?", "Apa itu limit?", "Rumus kuadrat"],
+    deeptalk: ["Aku lagi ngerasa bingung", "Gimana cara ngadepin rasa takut?", "Aku butuh teman bicara"],
+    exercise: ["5 soal aljabar SMA", "Soal fisika kinematika", "Latihan soal integral"],
+    religion: []
+  };
+  const chips = (mode === "religion" ? ["Bagaimana cara berdoa yang baik?","Apa makna hidup menurut agama?","Jelaskan tentang kitab suci"] : (suggestions[mode] || []));
+
+  let greet = "";
+  if(mode === "academic") greet = "<h2>📚 Mode Akademik</h2><p>Tanyakan soal matematika, fisika, kimia, atau mata pelajaran apapun. Aku akan membantu dengan penjelasan langkah demi langkah.</p>";
+  else if(mode === "deeptalk") greet = "<h2>💭 Mode Deep Talk</h2><p>Halo! Aku di sini untuk mendengarkan dan menemanimu bicara. Ceritakan apa yang ada di pikiranmu.</p>";
+  else if(mode === "exercise") greet = "<h2>📝 Mode Latihan Soal</h2><p>Sebutkan topik dan aku akan buatkan soal latihan lengkap dengan pembahasan. Contoh: <em>\"5 soal trigonometri SMA\"</em></p>";
+  else {
+    const ri = RELIGION_INFO[rel];
+    greet = `<h2>${ri.label} · Bimbingan Rohani</h2><p>Selamat datang. Aku siap membantu menjawab pertanyaan spiritual, tafsir kitab suci, dan bimbingan rohani berdasarkan ${ri.label}.</p>`;
   }
+
+  chatEl.innerHTML = `
+    <div class="welcome">
+      <div class="welcome-logo">⚡</div>
+      <div style="text-align:center">${greet}</div>
+      ${chips.length ? `<div class="welcome-chips">${chips.map(s=>`<div class="welcome-chip" onclick="useChip('${escHtml(s)}')">${escHtml(s)}</div>`).join("")}</div>` : ""}
+    </div>
+  `;
 }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function addBubble(text, type, scroll=true){
-  const chatEl = document.getElementById("chat");
-  const div = document.createElement("div");
-  div.className = "msg " + type;
-  div.innerHTML = marked.parse(text);
-  chatEl.appendChild(div);
-  if(window.MathJax?.typesetPromise) MathJax.typesetPromise([div]).catch(()=>{});
-  if(scroll) chatEl.scrollTop = chatEl.scrollHeight;
-  return div;
+
+function useChip(text){
+  document.getElementById("inputBox").value = text;
+  autoResize();
+  sendMsg();
 }
-function renderChat(){
-  const chat = chats[activeId];
-  if(!chat) return;
-  const chatEl = document.getElementById("chat");
+
+function renderMessages(){
+  const c = chats[activeId];
+  if(!c){ return; }
+  if(c.messages.length === 0){ renderWelcome(); return; }
+
+  const chatEl = document.getElementById("chatWrap");
   chatEl.innerHTML = "";
-  if(chat.messages.length === 0){
-    let welcome = "";
-    if(chat.mode === "academic") welcome = "# 📚 Mode Akademik\n\nHalo! Aku Alarich AI, tutor matematika, fisika, kimia. Tanyakan soal apapun! (Gunakan $...$ untuk rumus)";
-    else if(chat.mode === "deeptalk") welcome = "# 💭 Mode Deep Talk\n\nHalo! Aku Alarich, teman curhatmu. Ceritakan apa yang kamu pikirkan.";
-    else if(chat.mode === "exercise") welcome = "# 📝 Mode Latihan Soal\n\nHalo! Sebutkan topik dan jumlah soal (contoh: \"Buatkan 3 soal aljabar\").";
-    else { const relName = RELIGION_INFO[chat.religion]?.label || "Agama"; welcome = `# ✨ Mode ${relName}\n\nHalo! Aku Alarich dalam bimbingan ${relName}. Tanyakan seputar spiritualitas dan kitab suci.`; }
-    addBubble(welcome, "bot", false);
-  } else {
-    for(const m of chat.messages) addBubble(m.text, m.role === "user" ? "user" : "bot", false);
-  }
+  c.messages.forEach(m => appendBubble(m.role, m.text, false));
   chatEl.scrollTop = chatEl.scrollHeight;
 }
-async function sendMessage(){
-  const input = document.getElementById("text");
-  const text = input.value.trim();
+
+function appendBubble(role, text, scroll=true){
+  const chatEl = document.getElementById("chatWrap");
+  // remove welcome if present
+  const welcome = chatEl.querySelector(".welcome");
+  if(welcome) welcome.remove();
+
+  const isUser = role === "user";
+  const row = document.createElement("div");
+  row.className = "chat-row " + (isUser ? "user" : "bot");
+
+  let avatar = "";
+  if(!isUser) avatar = `<div class="avatar bot-av">⚡</div>`;
+  else avatar = `<div class="avatar user-av">👤</div>`;
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble " + (isUser ? "user" : "bot");
+
+  if(isUser){
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    row.appendChild(document.querySelector(".avatar.user-av")?.cloneNode(true) || (() => {
+      const d = document.createElement("div");
+      d.className = "avatar user-av";
+      d.textContent = "👤";
+      return d;
+    })());
+  } else {
+    bubble.innerHTML = marked.parse(text);
+    row.appendChild(document.createElement("div")); // placeholder for avatar
+    row.children[0].className = "avatar bot-av";
+    row.children[0].textContent = "⚡";
+    row.appendChild(bubble);
+  }
+
+  // re-do structure cleanly
+  row.innerHTML = "";
+  if(isUser){
+    row.innerHTML = `<div class="bubble user">${escHtml(text)}</div><div class="avatar user-av">👤</div>`;
+  } else {
+    row.innerHTML = `<div class="avatar bot-av">⚡</div><div class="bubble bot">${marked.parse(text)}</div>`;
+  }
+
+  chatEl.appendChild(row);
+  if(window.MathJax?.typesetPromise) MathJax.typesetPromise([row]).catch(()=>{});
+  if(scroll) chatEl.scrollTop = chatEl.scrollHeight;
+  return row;
+}
+
+function addTypingIndicator(){
+  const chatEl = document.getElementById("chatWrap");
+  const welcome = chatEl.querySelector(".welcome");
+  if(welcome) welcome.remove();
+  const row = document.createElement("div");
+  row.className = "chat-row bot";
+  row.id = "typing";
+  row.innerHTML = `<div class="avatar bot-av">⚡</div><div class="bubble bot" style="padding:12px 16px"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+  chatEl.appendChild(row);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+function removeTypingIndicator(){
+  document.getElementById("typing")?.remove();
+}
+
+// ======================== SEND MESSAGE ========================
+async function sendMsg(){
+  const inp = document.getElementById("inputBox");
+  const text = inp.value.trim();
   if(!text) return;
+
   const apiKey = localStorage.getItem("alarich_api_key");
-  if(!apiKey){ checkApiKey(); return; }
-  let chat = chats[activeId];
-  if(!chat){ ensureActiveChat(); chat = chats[activeId]; }
-  chat.messages.push({role:"user", text});
-  if(chat.title === "Chat baru") chat.title = text.slice(0,40);
-  saveChats();
-  renderHistory();
-  addBubble(text, "user");
-  input.value = "";
+  if(!apiKey){ checkGate(); return; }
+
+  const c = chats[activeId];
+  if(!c){ ensureChat(); return; }
+
+  // add user message
+  c.messages.push({role:"user", text});
+  if(c.title === "Chat baru") c.title = text.slice(0,45);
+  save(); renderHistory();
+  appendBubble("user", text);
+  inp.value = ""; autoResize();
+
   const sendBtn = document.getElementById("sendBtn");
   sendBtn.disabled = true;
-  const loading = addBubble("⏳ Alarich sedang berpikir...", "bot");
+  addTypingIndicator();
+
   try{
     const provider = localStorage.getItem("alarich_provider") || "gemini";
-    let systemPrompt = "";
-    if(chat.mode === "religion" && chat.religion){ systemPrompt = RELIGION_PROMPTS[chat.religion] || RELIGION_PROMPTS.islam; }
-    else { systemPrompt = MODE_PROMPTS[chat.mode] || MODE_PROMPTS.academic; }
+    const sysPrompt = getSystemPrompt(c);
     let answer;
+
     if(provider === "openrouter"){
       const orModel = localStorage.getItem("alarich_or_model") || "openai/gpt-4o-mini";
-      const messages = [{role:"system", content:systemPrompt}];
-      for(const m of chat.messages) messages.push({role: m.role==="user" ? "user" : "assistant", content:m.text});
+      const messages = [{role:"system", content: sysPrompt}];
+      c.messages.forEach(m => messages.push({role: m.role === "user" ? "user" : "assistant", content: m.text}));
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
-        method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
-        body: JSON.stringify({ model: orModel, messages })
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey,"HTTP-Referer":"https://alarich.ai"},
+        body: JSON.stringify({model:orModel, messages, max_tokens:2048})
       });
       const data = await res.json();
-      loading.remove();
-      if(data.error){ addBubble("❌ Error: " + (data.error.message || "Unknown"), "bot"); return; }
-      answer = data?.choices?.[0]?.message?.content || "Tidak ada jawaban.";
+      if(data.error) throw new Error(data.error.message || "OpenRouter error");
+      answer = data?.choices?.[0]?.message?.content || "Tidak ada respons.";
+
     } else {
-      const contents = [{role:"user", parts:[{text:systemPrompt + "\n\nMulai."}]}];
-      for(const m of chat.messages) contents.push({role: m.role === "user" ? "user" : "model", parts:[{text:m.text}]});
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,{
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ contents })
+      // Gemini — build contents array with system prompt injected as first user turn
+      const contents = [];
+      // inject system as first turn
+      contents.push({role:"user", parts:[{text: sysPrompt + "\n\nMengerti? Jawab dengan: Ya, aku siap membantu!"}]});
+      contents.push({role:"model", parts:[{text:"Ya, aku siap membantu!"}]});
+      // add conversation
+      c.messages.forEach(m => {
+        contents.push({role: m.role === "user" ? "user" : "model", parts:[{text: m.text}]});
+      });
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          contents,
+          generationConfig:{
+            temperature: currentMode === "deeptalk" ? 0.9 : (currentMode === "academic" ? 0.3 : 0.7),
+            maxOutputTokens: 2048,
+            topP: 0.95
+          },
+          safetySettings:[
+            {category:"HARM_CATEGORY_HARASSMENT",threshold:"BLOCK_ONLY_HIGH"},
+            {category:"HARM_CATEGORY_HATE_SPEECH",threshold:"BLOCK_ONLY_HIGH"},
+            {category:"HARM_CATEGORY_SEXUALLY_EXPLICIT",threshold:"BLOCK_ONLY_HIGH"},
+            {category:"HARM_CATEGORY_DANGEROUS_CONTENT",threshold:"BLOCK_ONLY_HIGH"}
+          ]
+        })
       });
       const data = await res.json();
-      loading.remove();
-      if(data.error){ addBubble("❌ Error: " + data.error.message, "bot"); return; }
-      answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Tidak ada jawaban.";
+      if(data.error) throw new Error(data.error.message || "Gemini error");
+      answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if(!answer){
+        const reason = data?.candidates?.[0]?.finishReason;
+        if(reason === "SAFETY") throw new Error("Respons diblokir oleh filter keamanan. Coba ubah pertanyaanmu.");
+        throw new Error("Tidak ada respons dari AI.");
+      }
     }
-    chat.messages.push({role:"model", text:answer});
-    saveChats();
-    addBubble(answer, "bot");
-  }catch(err){
-    loading.remove();
-    addBubble("❌ Gagal: " + err.message, "bot");
-  }finally{
+
+    removeTypingIndicator();
+    c.messages.push({role:"model", text:answer});
+    save();
+    appendBubble("model", answer);
+
+  } catch(err){
+    removeTypingIndicator();
+    const errMsg = `❌ **Error:** ${err.message}\n\n*Coba periksa API Key atau koneksi internetmu.*`;
+    appendBubble("model", errMsg);
+  } finally {
     sendBtn.disabled = false;
+    document.getElementById("inputBox").focus();
   }
 }
-function autoresize(){
-  const t = document.getElementById("text");
+
+// ======================== INPUT ========================
+function handleKey(e){
+  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+}
+function autoResize(){
+  const t = document.getElementById("inputBox");
   t.style.height = "auto";
   t.style.height = Math.min(t.scrollHeight, 160) + "px";
 }
-document.getElementById("text").addEventListener("input", autoresize);
-document.getElementById("text").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
-document.querySelectorAll(".religion-btn").forEach(btn => { btn.addEventListener("click", ()=>setReligion(btn.dataset.religion)); });
 
-// Initialize
-checkApiKey();
-ensureActiveChat();
-updateReligionUI();
-updateBadge();
-renderHistory();
-renderChat();
-const modeSelect = document.getElementById("modeSelect");
-const currentChat = chats[activeId];
-if(currentChat){
-  if(currentChat.mode === "religion") modeSelect.value = "religion";
-  else modeSelect.value = currentChat.mode;
+// ======================== INIT ========================
+function init(){
+  checkGate();
+  ensureChat();
+  // restore mode from active chat
+  const c = chats[activeId];
+  if(c){
+    currentMode = c.mode;
+    if(c.religion) currentReligion = c.religion;
+  }
+  renderModeUI();
+  updateBadge();
+  renderHistory();
+  renderMessages();
 }
+
+init();
 </script>
 </body>
 </html>
