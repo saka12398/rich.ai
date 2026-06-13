@@ -19,6 +19,8 @@ window.MathJax = {
   --bg:#0f172a; --panel:#111827; --border:#1f2937;
   --bubble:#1e293b; --accent:#2563eb; --accent2:#60a5fa;
   --text:#e5e7eb; --muted:#9ca3af;
+  --tutorial-glow:#00d4ff;
+  --whatsapp:#25D366;
 }
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
@@ -39,7 +41,6 @@ body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
   width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);
   background:#0b1220; color:var(--text); font-size:14px;
 }
-/* Religion Sub-options (muncul kalau mode = agama) */
 .religion-select{
   margin:0 12px 12px;
   padding-top:8px;
@@ -71,12 +72,6 @@ body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
   border-color:var(--accent2);
   color:white;
 }
-.religion-btn:hover:not(.active){
-  border-color:var(--accent2);
-  color:var(--accent2);
-}
-
-/* Tutorial Button & Popup */
 .tutorial-btn{
   margin:8px 12px;
   padding:8px;
@@ -91,90 +86,10 @@ body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
   justify-content:center;
   gap:6px;
 }
-.tutorial-btn:hover{
-  background:#334155;
-  border-color:var(--accent2);
-}
-.tutorial-overlay{
-  position:fixed;
-  inset:0;
-  background:#000000cc;
-  z-index:200;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  visibility:hidden;
-  opacity:0;
-  transition:all 0.3s;
-}
-.tutorial-overlay.show{
-  visibility:visible;
-  opacity:1;
-}
-.tutorial-card{
-  background:var(--panel);
-  border:1px solid var(--accent2);
-  border-radius:20px;
-  max-width:500px;
-  width:90%;
-  max-height:80vh;
-  overflow-y:auto;
-  padding:24px;
-  position:relative;
-  animation: slideUp 0.4s ease;
-}
-@keyframes slideUp{
-  from{transform:translateY(30px);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-.tutorial-card h3{
-  color:var(--accent2);
-  margin-bottom:16px;
-  font-size:20px;
-}
-.tutorial-card h4{
-  color:var(--text);
-  margin:16px 0 8px;
-  font-size:16px;
-}
-.tutorial-card p{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-  margin-bottom:12px;
-}
-.tutorial-card .api-note{
-  background:#0b1220;
-  padding:12px;
-  border-radius:12px;
-  border-left:3px solid var(--accent2);
-  margin:12px 0;
-}
-.tutorial-card .wa-contact{
-  display:inline-block;
-  background:#25D366;
-  color:white;
-  padding:10px 20px;
-  border-radius:30px;
-  text-decoration:none;
-  font-weight:600;
-  margin-top:8px;
-}
-.close-tutorial{
-  position:absolute;
-  top:16px;
-  right:20px;
-  background:none;
-  border:none;
-  color:var(--muted);
-  font-size:20px;
-  cursor:pointer;
-}
 .history{flex:1; overflow-y:auto; padding:0 8px}
 .history-item{
   display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:8px;
   cursor:pointer; font-size:13px; color:var(--muted); margin-bottom:4px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .history-item:hover{background:#1a2333}
 .history-item.active{background:#1e2a44; color:var(--text)}
@@ -208,8 +123,7 @@ body{background:var(--bg);color:var(--text);display:flex;overflow:hidden}
 .msg{max-width:85%; padding:14px 16px; border-radius:14px; margin:12px 0; line-height:1.7; font-size:15px; word-wrap:break-word}
 .user{background:var(--accent); margin-left:auto; border-bottom-right-radius:4px}
 .bot{background:var(--bubble); border-bottom-left-radius:4px}
-.msg pre{background:#0b1220; padding:10px; border-radius:8px; overflow-x:auto; margin:8px 0}
-.msg code{font-family:monospace; font-size:13px}
+.msg pre{background:#0b1220; padding:10px; border-radius:8px; overflow-x:auto}
 .input-area{display:flex; gap:10px; padding:14px; background:var(--panel); border-top:1px solid var(--border)}
 textarea{
   flex:1; min-height:50px; max-height:160px; border:1px solid var(--border); border-radius:12px;
@@ -218,22 +132,23 @@ textarea{
 textarea:focus{outline:1px solid var(--accent)}
 .send{
   background:var(--accent); color:white; border:none; border-radius:12px;
-  padding:0 22px; font-size:18px; cursor:pointer; flex-shrink:0;
+  padding:0 22px; font-size:18px; cursor:pointer;
 }
-.send:disabled{opacity:.5; cursor:not-allowed}
+.send:disabled{opacity:.5}
 .overlay{display:none; position:fixed; inset:0; background:#0008; z-index:40}
 
-/* GATE */
+/* GATE API KEY - WITH FULL INFO */
 .gate{
   position:fixed; inset:0; background:#0f172aee; display:flex; align-items:center;
-  justify-content:center; z-index:100; padding:20px;
+  justify-content:center; z-index:100; padding:20px; overflow-y:auto;
 }
 .gate-box{
-  background:var(--panel); border:1px solid var(--border); border-radius:16px;
-  padding:28px; max-width:450px; width:100%;
+  background:var(--panel); border:1px solid var(--border); border-radius:20px;
+  padding:28px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto;
 }
-.gate-box h2{color:var(--accent2); margin-bottom:6px}
-.gate-box p{font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.6}
+.gate-box h2{color:var(--accent2); margin-bottom:6px; font-size:22px;}
+.gate-box h3{color:var(--text); font-size:16px; margin:16px 0 8px; border-left:3px solid var(--accent2); padding-left:10px;}
+.gate-box p{font-size:13px; color:var(--muted); margin-bottom:12px; line-height:1.6}
 .gate-box input{
   width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);
   background:#0b1220; color:var(--text); margin-bottom:10px; font-size:14px;
@@ -241,9 +156,10 @@ textarea:focus{outline:1px solid var(--accent)}
 .gate-box button{
   width:100%; padding:12px; border:none; border-radius:10px; background:var(--accent);
   color:white; font-weight:600; cursor:pointer; font-size:15px;
+  transition:all 0.2s;
 }
+.gate-box button:hover{background:#3b82f6; transform:scale(1.01);}
 .hidden{display:none !important}
-
 .input-group{
   position:relative; display:flex; align-items:center; gap:8px; margin-bottom:10px;
 }
@@ -256,27 +172,191 @@ textarea:focus{outline:1px solid var(--accent)}
   font-size:18px; padding:4px; border-radius:6px;
 }
 .key-icon-btn:hover{ background:#1f2937; color:var(--accent2); }
-.action-buttons{ display:flex; gap:10px; margin-bottom:10px; }
-.action-buttons button{
-  flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);
-  background:#0b1220; color:var(--text); cursor:pointer; font-size:13px;
+.wa-option{
+  background:rgba(37,211,102,0.1);
+  border:1px solid var(--whatsapp);
+  border-radius:12px;
+  padding:12px;
+  margin:12px 0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
 }
-@media(max-width:850px){
-  .sidebar{ position:fixed; top:0; left:0; height:100%; transform:translateX(-100%); box-shadow:4px 0 20px #0008; }
-  .sidebar.open{transform:translateX(0)}
-  .hamburger{display:block}
-  .overlay.show{display:block}
-  .msg{max-width:92%}
+.wa-option a{
+  background:var(--whatsapp);
+  color:white;
+  text-decoration:none;
+  padding:8px 20px;
+  border-radius:30px;
+  font-weight:600;
+  font-size:13px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.wa-option a:hover{opacity:0.9; transform:scale(1.02);}
+.method-icon{font-size:24px;}
+.api-example{
+  background:#0b1220;
+  padding:8px 12px;
+  border-radius:8px;
+  font-family:monospace;
+  font-size:12px;
+  color:#6ee7b7;
+  margin:8px 0;
+}
+
+/* ========== TUTORIAL INTERAKTIF ========== */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+.tour-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+.tour-highlight {
+  position: absolute;
+  border-radius: 16px;
+  box-shadow: 0 0 0 4px var(--tutorial-glow), 0 0 0 9999px rgba(0,0,0,0.7);
+  transition: all 0.4s cubic-bezier(0.2,0.9,0.4,1.1);
+  z-index: 1001;
+  pointer-events: none;
+}
+.tour-tooltip {
+  position: absolute;
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 1px solid var(--accent2);
+  border-radius: 20px;
+  padding: 20px 24px;
+  max-width: 320px;
+  z-index: 1002;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.2);
+  animation: tooltipPop 0.4s cubic-bezier(0.2,0.9,0.4,1.1);
+}
+@keyframes tooltipPop {
+  from { transform: scale(0.9) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.tour-tooltip h4 {
+  color: var(--accent2);
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+.tour-tooltip p {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.tour-tooltip .feature-list {
+  margin: 12px 0;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.tour-tooltip .feature-list li {
+  margin: 6px 0;
+}
+.tour-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.tour-btn {
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.tour-btn-next {
+  background: var(--accent);
+  color: white;
+}
+.tour-btn-next:hover {
+  background: #3b82f6;
+}
+.tour-btn-skip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.tour-btn-skip:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.tour-progress {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 12px;
+  color: var(--accent2);
+  z-index: 1002;
+  border: 1px solid var(--accent2);
+}
+@media (max-width: 640px) {
+  .tour-tooltip { max-width: 280px; padding: 16px; }
+  .gate-box { padding: 20px; }
+  .wa-option { flex-direction: column; text-align: center; }
 }
 </style>
 </head>
 <body>
 
-<!-- API KEY GATE -->
+<!-- API KEY GATE - DENGAN INFO LENGKAP -->
 <div class="gate" id="gate">
   <div class="gate-box">
     <h2>⚡ Alarich AI</h2>
-    <p>🔑 <strong>Butuh API Key?</strong> Hubungi <strong>+62 878-2142-4236</strong> untuk dibantu mendapatkan key (gratis/recommended). Atau buat sendiri di <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#60a5fa">Google AI Studio</a> (key diawali AIza...).</p>
+    <p style="margin-bottom:16px;">Asisten cerdas dengan <strong>4 Mode</strong> (Akademik, Deep Talk, Latihan Soal, Agama) + <strong>6 Pilihan Agama</strong>. Multi bahasa otomatis.</p>
+    
+    <h3>🔑 Cara Mendapatkan API Key</h3>
+    <p>Alarich AI butuh API Key untuk bekerja. Ada <strong>2 cara</strong>:</p>
+    
+    <!-- OPTION 1: MANTA KE ADMIN -->
+    <div class="wa-option">
+      <div class="method-icon">📱</div>
+      <div style="flex:1">
+        <strong style="color:var(--whatsapp)">Opsi 1: Minta ke Admin</strong>
+        <p style="font-size:12px; margin:4px 0;">Hubungi WhatsApp untuk dibantu mendapatkan key (gratis & cepat)</p>
+      </div>
+      <a href="https://wa.me/6287821424236?text=Halo%20Admin%2C%20saya%20mau%20minta%20API%20Key%20untuk%20Alarich%20AI" target="_blank">
+        💬 +62 878-2142-4236
+      </a>
+    </div>
+    
+    <!-- OPTION 2: BUAT SENDIRI -->
+    <div style="background:#0b1220; border-radius:12px; padding:12px; margin:12px 0;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span class="method-icon">🌐</span>
+        <strong>Opsi 2: Buat Sendiri (Gratis)</strong>
+      </div>
+      <p style="font-size:12px; margin-bottom:8px;">Buat API Key gratis dari Google AI Studio:</p>
+      <ol style="margin-left:20px; font-size:12px; color:var(--muted); line-height:1.6;">
+        <li>Buka <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent2)">aistudio.google.com/app/apikey</a></li>
+        <li>Login dengan akun Google (gratis)</li>
+        <li>Klik "Create API Key" → pilih "Generate API key"</li>
+        <li>Copy key yang diawali <code style="background:#000;padding:2px 4px;border-radius:4px;">AIza...</code></li>
+        <li>Tempel di bawah lalu klik Simpan</li>
+      </ol>
+      <div class="api-example">
+        📋 Contoh API Key: <span style="color:#fcd34d">AIzaSyD3fG5hJkLmN... (panjang)</span>
+      </div>
+    </div>
+    
+    <h3>📝 Tempel API Key di sini</h3>
     <div class="input-group">
       <input type="password" id="apiKeyInput" placeholder="Tempel API Key (AIza... atau sk-or-v1-...)" oninput="onKeyInput()">
       <div class="key-icons">
@@ -285,59 +365,39 @@ textarea:focus{outline:1px solid var(--accent)}
       </div>
     </div>
     <div id="modelPickerWrap" class="hidden" style="margin-bottom:10px">
-      <select id="orModel" style="width:100%;padding:10px;border-radius:10px;background:#0b1220;color:var(--text)">
+      <select id="orModel" style="width:100%;padding:10px;border-radius:10px;background:#0b1220;color:var(--text);margin-top:6px">
         <option value="openai/gpt-4o-mini">openai/gpt-4o-mini</option>
         <option value="google/gemini-2.0-flash-001">google/gemini-2.0-flash-001</option>
       </select>
+      <p style="font-size:11px; margin-top:5px;">Key OpenRouter diawali <code>sk-or-v1-</code></p>
     </div>
-    <button onclick="saveApiKey()">Simpan & Mulai</button>
+    <button onclick="saveApiKey()">✅ Simpan & Mulai</button>
+    
+    <p style="font-size:11px; margin-top:12px; text-align:center;">🔒 Key disimpan hanya di perangkat ini (localStorage). Aman dan privat.</p>
   </div>
 </div>
 
-<!-- TUTORIAL OVERLAY -->
-<div class="tutorial-overlay" id="tutorialOverlay">
-  <div class="tutorial-card">
-    <button class="close-tutorial" onclick="closeTutorial()">✕</button>
-    <h3>✨ Selamat Datang di Alarich AI!</h3>
-    <p>Asisten cerdas dengan berbagai mode dan dukungan multi-agama. Berikut panduan singkatnya:</p>
-    
-    <h4>📌 1. Pilih Mode</h4>
-    <p><strong>📚 Akademik</strong> - Tutor matematika, fisika, kimia, sains. Mendukung LaTeX dan penjelasan detail.<br>
-    <strong>💭 Deep Talk</strong> - Teman curhat empatik, hangat, dan bijak.<br>
-    <strong>📝 Latihan Soal</strong> - Generator soal otomatis dengan pembahasan lengkap.<br>
-    <strong>✨ Agama</strong> - Bimbingan rohani dengan 6 pilihan agama (Islam, Kristen, Katolik, Hindu, Buddha, Konghucu).</p>
-    
-    <h4>🙏 2. Pilih Agama (jika mode Agama aktif)</h4>
-    <p>Setiap agama memiliki persona, tone, dan sumber rujukan yang berbeda (Al-Qur'an, Alkitab, Weda, Tripitaka, dll).</p>
-    
-    <h4>🔑 3. API Key (WAJIB)</h4>
-    <div class="api-note">
-      <p>Alarich AI butuh API Key untuk bekerja. Kamu bisa:</p>
-      <ul style="margin-left:20px;color:var(--muted);font-size:13px">
-        <li>📱 <strong>Hubungi +62 878-2142-4236</strong> (WhatsApp) - gratis dibantu pembuatan key</li>
-        <li>🌐 Buat sendiri di <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#60a5fa">Google AI Studio</a> (gratis, cukup login Google)</li>
-        <li>🔑 Key diawali <code>AIza...</code> untuk Gemini</li>
-      </ul>
-    </div>
-    
-    <h4>💬 4. Tips Penggunaan</h4>
-    <p>- Ganti mode kapan saja. Jika chat kosong, mode akan otomatis berganti tanpa membuat chat baru.<br>
-    - Chat yang sudah terisi pesan akan tetap menggunakan mode lamanya (kecuali Anda buat chat baru).<br>
-    - Bahasa otomatis terdeteksi (Indonesia, Inggris, Arab, dll).</p>
-    
-    <div style="text-align:center;margin-top:16px">
-      <a href="https://wa.me/6287821424236" target="_blank" class="wa-contact">💬 Hubungi +62 878-2142-4236</a>
+<!-- TUTORIAL INTERAKTIF OVERLAY -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-highlight" id="tourHighlight"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <h4 id="tourTitle">✨ Selamat Datang!</h4>
+    <p id="tourDesc">Mari kita kenalan dengan Alarich AI 🤖</p>
+    <div id="tourFeatures" class="feature-list"></div>
+    <div class="tour-buttons">
+      <button class="tour-btn tour-btn-skip" onclick="skipTour()">Lewati</button>
+      <button class="tour-btn tour-btn-next" onclick="nextTour()">Selanjutnya →</button>
     </div>
   </div>
+  <div class="tour-progress" id="tourProgress">Langkah 1 / 7</div>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
 
 <div class="sidebar" id="sidebar">
   <div class="logo">⚡ Alarich AI</div>
-  <button class="newchat-btn" onclick="newChat()">+ Chat Baru</button>
+  <button class="newchat-btn" id="newChatBtn" onclick="newChat()">+ Chat Baru</button>
 
-  <!-- Mode Selection -->
   <div class="mode-select">
     <select id="modeSelect" onchange="onModeSelectChange()">
       <option value="academic">📚 Akademik</option>
@@ -347,7 +407,6 @@ textarea:focus{outline:1px solid var(--accent)}
     </select>
   </div>
 
-  <!-- Sub pilihan Agama (muncul kalau modeSelect = religion) -->
   <div class="religion-select" id="religionSelect" style="display:none;">
     <label>🙏 Pilih Agama / Keyakinan</label>
     <div class="religion-options" id="religionOptions">
@@ -360,8 +419,7 @@ textarea:focus{outline:1px solid var(--accent)}
     </div>
   </div>
 
-  <!-- Tombol Tutorial -->
-  <button class="tutorial-btn" onclick="showTutorial()">📖 Tutorial & Dapatkan API Key</button>
+  <button class="tutorial-btn" onclick="startTour()">📖 Lihat Tutorial Lagi</button>
 
   <div class="history" id="history"></div>
   <div class="sidebar-footer">
@@ -385,38 +443,188 @@ textarea:focus{outline:1px solid var(--accent)}
 <script>
 const MODEL = "gemini-2.0-flash";
 
+// ======================== TUTORIAL INTERAKTIF ========================
+const TOUR_STEPS = [
+  {
+    element: "#modeSelect",
+    title: "🎯 1. Pilih Mode",
+    desc: "Alarich AI punya 4 mode canggih:",
+    features: [
+      "📚 Akademik - Tutor matematika, fisika, kimia (support LaTeX)",
+      "💭 Deep Talk - Teman curhat empatik & hangat",
+      "📝 Latihan Soal - Generator soal otomatis + pembahasan",
+      "✨ Agama - Bimbingan rohani dengan 6 pilihan agama"
+    ],
+    position: "right"
+  },
+  {
+    element: "#religionSelect",
+    title: "🕊️ 2. Pilih Agama (Mode Agama)",
+    desc: "Kalau kamu pilih mode Agama, kamu bisa memilih 6 keyakinan dengan persona berbeda:",
+    features: [
+      "☪️ Islam - Rujukan Al-Qur'an & Hadis, sapaan Assalamu'alaikum",
+      "✝️ Kristen/Katolik - Rujukan Alkitab, sapaan Tuhan memberkati",
+      "🕉️ Hindu - Rujukan Weda & Bhagavad Gita",
+      "☸️ Buddha - Rujukan Tripitaka & Dhammapada",
+      "☯️ Konghucu - Rujukan Si Shu & Wu Jing"
+    ],
+    position: "right",
+    condition: () => document.getElementById("modeSelect").value === "religion"
+  },
+  {
+    element: "#newChatBtn",
+    title: "💬 3. Chat Baru",
+    desc: "Klik tombol ini untuk memulai percakapan baru. Setiap chat punya mode dan agama yang bisa berbeda-beda.",
+    features: [],
+    position: "right"
+  },
+  {
+    element: "#chat",
+    title: "📝 4. Area Chat",
+    desc: "Di sinilah percakapanmu dengan Alarich AI akan muncul. AI bisa mendeteksi bahasa yang kamu pakai (Indonesia, Inggris, Arab, dll) dan menjawab dengan bahasa yang sama.",
+    features: [],
+    position: "left"
+  },
+  {
+    element: "#text",
+    title: "⌨️ 5. Kotak Ketik",
+    desc: "Tulis pertanyaan atau curhatanmu di sini. Tekan Enter untuk mengirim, atau Shift+Enter untuk pindah baris.",
+    features: [],
+    position: "top"
+  },
+  {
+    element: "#sendBtn",
+    title: "📤 6. Kirim Pesan",
+    desc: "Klik tombol ini atau tekan Enter untuk mengirim pesan ke Alarich AI.",
+    features: [],
+    position: "left"
+  },
+  {
+    element: "#history",
+    title: "📜 7. Riwayat Chat",
+    desc: "Semua percakapanmu tersimpan di sini. Klik chat lama untuk melanjutkan, atau klik ✕ untuk menghapus.",
+    features: [],
+    position: "right"
+  }
+];
+
+let currentStep = 0;
+let isTourActive = false;
+let hasShownTour = localStorage.getItem("alarich_tour_shown");
+
+function getElementRect(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return null;
+  return el.getBoundingClientRect();
+}
+
+function updateTourHighlight() {
+  const step = TOUR_STEPS[currentStep];
+  if (!step) return;
+  
+  if (step.condition && !step.condition()) {
+    currentStep++;
+    if (currentStep >= TOUR_STEPS.length) {
+      endTour();
+    } else {
+      updateTourHighlight();
+    }
+    return;
+  }
+  
+  const rect = getElementRect(step.element);
+  if (!rect) {
+    currentStep++;
+    if (currentStep >= TOUR_STEPS.length) {
+      endTour();
+    } else {
+      updateTourHighlight();
+    }
+    return;
+  }
+  
+  const highlight = document.getElementById("tourHighlight");
+  highlight.style.top = rect.top - 8 + "px";
+  highlight.style.left = rect.left - 8 + "px";
+  highlight.style.width = rect.width + 16 + "px";
+  highlight.style.height = rect.height + 16 + "px";
+  
+  const tooltip = document.getElementById("tourTooltip");
+  let tooltipTop, tooltipLeft;
+  
+  switch(step.position) {
+    case "right":
+      tooltipTop = rect.top;
+      tooltipLeft = rect.right + 20;
+      if (tooltipLeft + 320 > window.innerWidth) tooltipLeft = rect.left - 340;
+      break;
+    case "left":
+      tooltipTop = rect.top;
+      tooltipLeft = rect.left - 340;
+      if (tooltipLeft < 10) tooltipLeft = rect.right + 20;
+      break;
+    case "top":
+      tooltipTop = rect.top - 180;
+      tooltipLeft = rect.left;
+      break;
+    default:
+      tooltipTop = rect.bottom + 20;
+      tooltipLeft = rect.left;
+  }
+  
+  tooltip.style.top = Math.max(10, Math.min(tooltipTop, window.innerHeight - 250)) + "px";
+  tooltip.style.left = Math.max(10, Math.min(tooltipLeft, window.innerWidth - 340)) + "px";
+  
+  document.getElementById("tourTitle").innerHTML = step.title;
+  document.getElementById("tourDesc").innerHTML = step.desc;
+  const featuresHtml = step.features.map(f => `<li>${f}</li>`).join("");
+  document.getElementById("tourFeatures").innerHTML = featuresHtml ? `<ul>${featuresHtml}</ul>` : "";
+  document.getElementById("tourProgress").innerHTML = `Langkah ${currentStep+1} / ${TOUR_STEPS.length}`;
+}
+
+function nextTour() {
+  currentStep++;
+  if (currentStep >= TOUR_STEPS.length) {
+    endTour();
+  } else {
+    updateTourHighlight();
+  }
+}
+
+function skipTour() { endTour(); }
+function endTour() {
+  isTourActive = false;
+  document.getElementById("tourOverlay").classList.remove("active");
+  localStorage.setItem("alarich_tour_shown", "true");
+}
+function startTour() {
+  currentStep = 0;
+  isTourActive = true;
+  document.getElementById("tourOverlay").classList.add("active");
+  setTimeout(() => updateTourHighlight(), 100);
+}
+function checkAndStartTour() {
+  if (!hasShownTour || hasShownTour !== "true") {
+    setTimeout(() => startTour(), 800);
+  }
+}
+
 // ======================== BASE PERSONA ========================
-const BASE_PERSONA = `IDENTITAS & PERSONALITI:
-- Kamu adalah Alarich AI. Ramah, hangat, sopan, seperti teman yang bijak.
-- Jika user bertanya siapa pembuatmu: "Maaf, master saya memilih menyembunyikan identitas. Panggil saja Azure 😊"
-- Jika ditanya asal: "Master saya pelajar asal Bali."
+const BASE_PERSONA = `IDENTITAS: Kamu Alarich AI. Ramah, hangat, sopan. Jika ditanya pembuat: "Maaf, master saya menyembunyikan identitas. Panggil Azure 😊". MULTI BAHASA: Deteksi bahasa user dan jawab dengan bahasa yang SAMA persis.`;
 
-FITUR MULTI BAHASA (WAJIB):
-- DETEKSI bahasa user di setiap pesan.
-- Jawab dengan BAHASA YANG SAMA persis dengan bahasa user.
-- Jangan memaksakan bahasa Indonesia.`;
-
-// ======================== RELIGION PROMPTS ========================
 const RELIGION_PROMPTS = {
-  islam: BASE_PERSONA + `Kamu adalah Alarich Islamic AI. Gunakan sapaan "Assalamu'alaikum", "Insya Allah", "Masya Allah". Tone: lembut, teduh, penuh berkah. Sumber: Al-Qur'an + Hadis shahih (Bukhari, Muslim). Jika sebut ayat: tulis surah+ayat+teks Arab+arti. Jika hadis: sebut perawi. Jika tidak yakin: "Wallahu a'lam".`,
-
-  kristen: BASE_PERSONA + `Kamu adalah Alarich Kristen AI. Sapaan "Tuhan memberkati" atau "Shalom". Tone: penuh kasih, seperti gembala. Sumber: Alkitab (TB). Jika sebut ayat: tulis kitab+pasal+ayat+kutipan.`,
-
-  katolik: BASE_PERSONA + `Kamu adalah Alarich Katolik AI. Sapaan "Tuhan memberkati". Tone: penuh rahmat, hormat pada tradisi Gereja. Sumber: Alkitab Katolik + Katekismus Gereja Katolik.`,
-
-  hindu: BASE_PERSONA + `Kamu adalah Alarich Hindu AI. Sapaan "Om Swastyastu" atau "Om Shanti Shanti Shanti". Tone: tenang, filosofis, bijaksana. Sumber: Weda, Upanishad, Bhagavad Gita. Jika sebut sloka: tulis sumber (contoh: Bhagavad Gita 2.47).`,
-
-  buddha: BASE_PERSONA + `Kamu adalah Alarich Buddha AI. Sapaan "Namo Buddhaya" atau "Salam damai". Tone: penuh welas asih (metta). Sumber: Tripitaka, Dhammapada.`,
-
-  konghucu: BASE_PERSONA + `Kamu adalah Alarich Konghucu AI. Sapaan "Wei De Dong Tian". Tone: bijak, penuh tata krama. Sumber: Si Shu (Empat Kitab), Wu Jing.`
+  islam: BASE_PERSONA + `Kamu Alarich Islamic AI. Sapaan "Assalamu'alaikum", "Insya Allah". Tone lembut, teduh. Sumber: Al-Qur'an + Hadis shahih.`,
+  kristen: BASE_PERSONA + `Kamu Alarich Kristen AI. Sapaan "Tuhan memberkati". Tone penuh kasih. Sumber: Alkitab.`,
+  katolik: BASE_PERSONA + `Kamu Alarich Katolik AI. Sapaan "Tuhan memberkati". Sumber: Alkitab Katolik + Katekismus.`,
+  hindu: BASE_PERSONA + `Kamu Alarich Hindu AI. Sapaan "Om Swastyastu". Tone tenang, filosofis. Sumber: Weda, Bhagavad Gita.`,
+  buddha: BASE_PERSONA + `Kamu Alarich Buddha AI. Sapaan "Namo Buddhaya". Tone penuh welas asih. Sumber: Tripitaka, Dhammapada.`,
+  konghucu: BASE_PERSONA + `Kamu Alarich Konghucu AI. Sapaan "Wei De Dong Tian". Tone bijak. Sumber: Si Shu, Wu Jing.`
 };
 
 const MODE_PROMPTS = {
-  academic: BASE_PERSONA + `Kamu tutor akademik untuk matematika, fisika, kimia, sains. Gunakan LaTeX untuk rumus ($...$). Format: ## 📌 Konsep → ## 📌 Rumus → ## 📌 Penyelesaian → ## ✅ Jawaban.`,
-
-  deeptalk: BASE_PERSONA + `Kamu teman curhat empatik, hangat, tidak menghakimi. Jawaban singkat (3-8 kalimat). Validasi perasaan user dulu. Jangan diagnosis medis.`,
-
-  exercise: BASE_PERSONA + `Kamu generator soal latihan. Buat 5 soal (kecuali user minta jumlah tertentu). Format: **Soal N** lalu <details>**Pembahasan:** + **Jawaban Akhir**</details>. Variasikan tingkat kesulitan.`
+  academic: BASE_PERSONA + `Kamu tutor akademik. Gunakan LaTeX untuk rumus. Format: ## Konsep → ## Rumus → ## Penyelesaian → ## Jawaban.`,
+  deeptalk: BASE_PERSONA + `Kamu teman curhat empatik. Jawaban singkat 3-8 kalimat. Jangan diagnosis medis.`,
+  exercise: BASE_PERSONA + `Kamu generator soal. Buat 5 soal. Format: **Soal N** lalu <details>**Pembahasan:** + **Jawaban**</details>.`
 };
 
 // Global variables
@@ -424,7 +632,6 @@ let chats = JSON.parse(localStorage.getItem("alarich_chats_v4") || "{}");
 let activeId = localStorage.getItem("alarich_active_chat");
 let currentReligion = localStorage.getItem("alarich_religion") || "islam";
 
-// Helper functions
 function genId(){ return "c" + Date.now() + Math.random().toString(36).slice(2,7); }
 function saveChats(){ localStorage.setItem("alarich_chats_v4", JSON.stringify(chats)); }
 function detectProvider(key){ return key.startsWith("sk-or-") ? "openrouter" : "gemini"; }
@@ -442,11 +649,14 @@ function togglePasswordVisibility(){
 function clearApiKeyInput(){ document.getElementById("apiKeyInput").value=""; onKeyInput(); }
 function saveApiKey(){
   const val = document.getElementById("apiKeyInput").value.trim();
-  if(!val){ alert("Masukkan API Key"); return; }
+  if(!val){ alert("Masukkan API Key terlebih dahulu!"); return; }
   localStorage.setItem("alarich_api_key", val);
   localStorage.setItem("alarich_provider", detectProvider(val));
-  if(detectProvider(val)==="openrouter") localStorage.setItem("alarich_or_model", document.getElementById("orModel").value);
+  if(detectProvider(val) === "openrouter"){
+    localStorage.setItem("alarich_or_model", document.getElementById("orModel").value);
+  }
   document.getElementById("gate").classList.add("hidden");
+  checkAndStartTour();
 }
 function changeApiKey(){
   document.getElementById("apiKeyInput").value = localStorage.getItem("alarich_api_key") || "";
@@ -455,23 +665,11 @@ function changeApiKey(){
 }
 function checkApiKey(){ if(!localStorage.getItem("alarich_api_key")) document.getElementById("gate").classList.remove("hidden"); }
 
-// Tutorial
-function showTutorial(){ document.getElementById("tutorialOverlay").classList.add("show"); }
-function closeTutorial(){ document.getElementById("tutorialOverlay").classList.remove("show"); }
-
-// Sidebar
 function toggleSidebar(open){ 
   document.getElementById("sidebar").classList.toggle("open", open);
   document.getElementById("overlay").classList.toggle("show", open);
 }
-
-// UI Helpers
-function getCurrentUIMode(){
-  const modeSelect = document.getElementById("modeSelect");
-  if(modeSelect.value === "religion") return "religion";
-  return modeSelect.value;
-}
-
+function getCurrentUIMode(){ return document.getElementById("modeSelect").value === "religion" ? "religion" : document.getElementById("modeSelect").value; }
 function updateReligionUI(){
   const isReligionMode = (getCurrentUIMode() === "religion");
   document.getElementById("religionSelect").style.display = isReligionMode ? "block" : "none";
@@ -479,7 +677,6 @@ function updateReligionUI(){
     btn.classList.toggle("active", btn.dataset.religion === currentReligion);
   });
 }
-
 function setReligion(religion){
   currentReligion = religion;
   localStorage.setItem("alarich_religion", religion);
@@ -490,11 +687,8 @@ function setReligion(religion){
     chat.religion = currentReligion;
     saveChats();
     renderChat();
-  } else if(chat && chat.messages.length > 0 && getCurrentUIMode() === "religion"){
-    addBubble(`✨ *Agama diubah ke ${religion.toUpperCase()}.* Persona dan sumber rujukan saya menyesuaikan.`, "bot");
   }
 }
-
 const RELIGION_INFO = {
   islam: { label: "☪️ Islam", cls: "mode-islamic" },
   kristen: { label: "✝️ Kristen", cls: "mode-kristen" },
@@ -503,58 +697,34 @@ const RELIGION_INFO = {
   buddha: { label: "☸️ Buddha", cls: "mode-buddha" },
   konghucu: { label: "☯️ Konghucu", cls: "mode-konghucu" }
 };
-
 function updateBadge(){
   const uiMode = getCurrentUIMode();
   let text = "", cls = "";
   if(uiMode === "academic"){ text="📚 Akademik"; cls="mode-academic"; }
   else if(uiMode === "deeptalk"){ text="💭 Deep Talk"; cls="mode-deeptalk"; }
   else if(uiMode === "exercise"){ text="📝 Latihan Soal"; cls="mode-exercise"; }
-  else{
-    const relInfo = RELIGION_INFO[currentReligion];
-    text = `${relInfo.label} · Bimbingan Rohani`;
-    cls = relInfo.cls;
-  }
-  const badge = document.getElementById("modeBadge");
-  badge.textContent = text;
-  badge.className = "mode-badge " + cls;
+  else{ const relInfo = RELIGION_INFO[currentReligion]; text = `${relInfo.label} · Rohani`; cls = relInfo.cls; }
+  document.getElementById("modeBadge").textContent = text;
+  document.getElementById("modeBadge").className = "mode-badge " + cls;
 }
-
-// AUTO CHANGE MODE jika chat kosong
 function onModeSelectChange(){
   const newUIMode = getCurrentUIMode();
   updateReligionUI();
   updateBadge();
-  
   const chat = chats[activeId];
   if(!chat) return;
-  
-  const isEmpty = chat.messages.length === 0;
-  if(isEmpty){
-    // Auto update mode chat kosong
-    if(newUIMode === "religion"){
-      chat.mode = "religion";
-      chat.religion = currentReligion;
-    } else {
-      chat.mode = newUIMode;
-    }
+  if(chat.messages.length === 0){
+    if(newUIMode === "religion"){ chat.mode = "religion"; chat.religion = currentReligion; }
+    else { chat.mode = newUIMode; }
     saveChats();
     renderChat();
-  } else {
-    // Chat sudah terisi, kasih notifikasi bahwa mode baru hanya berlaku untuk chat baru
-    addBubble(`ℹ️ *Mode diubah ke ${document.getElementById("modeSelect").options[document.getElementById("modeSelect").selectedIndex].text}*.\n\nMode ini akan berlaku untuk **chat baru berikutnya**. Chat saat ini tetap menggunakan mode "${chat.mode === "religion" ? `Agama (${chat.religion})` : chat.mode}".`, "bot");
   }
 }
-
-// Chat Management
 function newChat(){
   const uiMode = getCurrentUIMode();
   const mode = uiMode === "religion" ? "religion" : uiMode;
   const id = genId();
-  chats[id] = { 
-    id, mode, title: "Chat baru", createdAt: Date.now(), messages: [],
-    religion: (mode === "religion") ? currentReligion : null
-  };
+  chats[id] = { id, mode, title: "Chat baru", createdAt: Date.now(), messages: [], religion: (mode === "religion") ? currentReligion : null };
   activeId = id;
   saveChats();
   localStorage.setItem("alarich_active_chat", activeId);
@@ -562,26 +732,19 @@ function newChat(){
   renderChat();
   toggleSidebar(false);
 }
-
 function switchChat(id){
   activeId = id;
   localStorage.setItem("alarich_active_chat", activeId);
   const chat = chats[id];
-  // Sync UI mode dengan chat mode
   const modeSelect = document.getElementById("modeSelect");
-  if(chat.mode === "religion"){
-    modeSelect.value = "religion";
-    if(chat.religion) currentReligion = chat.religion;
-  } else {
-    modeSelect.value = chat.mode;
-  }
+  if(chat.mode === "religion"){ modeSelect.value = "religion"; if(chat.religion) currentReligion = chat.religion; }
+  else { modeSelect.value = chat.mode; }
   updateReligionUI();
   updateBadge();
   renderHistory();
   renderChat();
   toggleSidebar(false);
 }
-
 function deleteChat(id, ev){
   ev.stopPropagation();
   if(!confirm("Hapus chat ini?")) return;
@@ -591,7 +754,6 @@ function deleteChat(id, ev){
   renderHistory();
   renderChat();
 }
-
 function ensureActiveChat(){
   if(activeId && chats[activeId]) return;
   const ids = Object.keys(chats);
@@ -599,18 +761,13 @@ function ensureActiveChat(){
   else { newChat(); return; }
   localStorage.setItem("alarich_active_chat", activeId);
 }
-
 function renderHistory(){
   const el = document.getElementById("history");
   el.innerHTML = "";
   const ids = Object.keys(chats).sort((a,b)=>chats[b].createdAt - chats[a].createdAt);
   for(const id of ids){
     const c = chats[id];
-    let icon = "";
-    if(c.mode === "academic") icon = "📚";
-    else if(c.mode === "deeptalk") icon = "💭";
-    else if(c.mode === "exercise") icon = "📝";
-    else icon = RELIGION_INFO[c.religion]?.label?.slice(0,2) || "✨";
+    let icon = c.mode === "academic" ? "📚" : (c.mode === "deeptalk" ? "💭" : (c.mode === "exercise" ? "📝" : (RELIGION_INFO[c.religion]?.label?.slice(0,2) || "✨")));
     const div = document.createElement("div");
     div.className = "history-item" + (id===activeId ? " active":"");
     div.onclick = ()=>switchChat(id);
@@ -618,9 +775,7 @@ function renderHistory(){
     el.appendChild(div);
   }
 }
-
 function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
 function addBubble(text, type, scroll=true){
   const chatEl = document.getElementById("chat");
   const div = document.createElement("div");
@@ -631,62 +786,45 @@ function addBubble(text, type, scroll=true){
   if(scroll) chatEl.scrollTop = chatEl.scrollHeight;
   return div;
 }
-
 function renderChat(){
   const chat = chats[activeId];
   if(!chat) return;
-  
   const chatEl = document.getElementById("chat");
   chatEl.innerHTML = "";
-  
   if(chat.messages.length === 0){
     let welcome = "";
-    if(chat.mode === "academic") welcome = "# 📚 Mode Akademik\n\nHalo! Aku Alarich AI, tutor matematika, fisika, kimia, dan sains. Tanyakan soal atau konsep apapun! (Gunakan $...$ untuk rumus)";
-    else if(chat.mode === "deeptalk") welcome = "# 💭 Mode Deep Talk\n\nHalo! Aku Alarich, teman curhatmu. Ceritakan apa yang sedang kamu pikirkan atau rasakan. Aku siap mendengarkan tanpa menghakimi.";
-    else if(chat.mode === "exercise") welcome = "# 📝 Mode Latihan Soal\n\nHalo! Aku generator soal otomatis. Sebutkan topik dan jumlah soal yang kamu mau (contoh: \"Buatkan 3 soal tentang aljabar\").";
-    else {
-      const relName = RELIGION_INFO[chat.religion]?.label || "Agama";
-      welcome = `# ✨ Mode ${relName}\n\nHalo! Aku Alarich AI dalam bimbingan ${relName}. Tanyakan seputar spiritualitas, ibadah, kitab suci, atau nilai-nilai keagamaan. Aku akan menjawab berdasarkan sumber rujukan yang terpercaya.`;
-    }
+    if(chat.mode === "academic") welcome = "# 📚 Mode Akademik\n\nHalo! Aku Alarich AI, tutor matematika, fisika, kimia. Tanyakan soal apapun! (Gunakan $...$ untuk rumus)";
+    else if(chat.mode === "deeptalk") welcome = "# 💭 Mode Deep Talk\n\nHalo! Aku Alarich, teman curhatmu. Ceritakan apa yang kamu pikirkan.";
+    else if(chat.mode === "exercise") welcome = "# 📝 Mode Latihan Soal\n\nHalo! Sebutkan topik dan jumlah soal (contoh: \"Buatkan 3 soal aljabar\").";
+    else { const relName = RELIGION_INFO[chat.religion]?.label || "Agama"; welcome = `# ✨ Mode ${relName}\n\nHalo! Aku Alarich dalam bimbingan ${relName}. Tanyakan seputar spiritualitas dan kitab suci.`; }
     addBubble(welcome, "bot", false);
   } else {
     for(const m of chat.messages) addBubble(m.text, m.role === "user" ? "user" : "bot", false);
   }
   chatEl.scrollTop = chatEl.scrollHeight;
 }
-
-// Send message
 async function sendMessage(){
   const input = document.getElementById("text");
   const text = input.value.trim();
   if(!text) return;
   const apiKey = localStorage.getItem("alarich_api_key");
   if(!apiKey){ checkApiKey(); return; }
-  
   let chat = chats[activeId];
   if(!chat){ ensureActiveChat(); chat = chats[activeId]; }
-  
   chat.messages.push({role:"user", text});
   if(chat.title === "Chat baru") chat.title = text.slice(0,40);
   saveChats();
   renderHistory();
   addBubble(text, "user");
   input.value = "";
-  
   const sendBtn = document.getElementById("sendBtn");
   sendBtn.disabled = true;
   const loading = addBubble("⏳ Alarich sedang berpikir...", "bot");
-  
   try{
     const provider = localStorage.getItem("alarich_provider") || "gemini";
     let systemPrompt = "";
-    
-    if(chat.mode === "religion" && chat.religion){
-      systemPrompt = RELIGION_PROMPTS[chat.religion] || RELIGION_PROMPTS.islam;
-    } else {
-      systemPrompt = MODE_PROMPTS[chat.mode] || MODE_PROMPTS.academic;
-    }
-    
+    if(chat.mode === "religion" && chat.religion){ systemPrompt = RELIGION_PROMPTS[chat.religion] || RELIGION_PROMPTS.islam; }
+    else { systemPrompt = MODE_PROMPTS[chat.mode] || MODE_PROMPTS.academic; }
     let answer;
     if(provider === "openrouter"){
       const orModel = localStorage.getItem("alarich_or_model") || "openai/gpt-4o-mini";
@@ -701,7 +839,7 @@ async function sendMessage(){
       if(data.error){ addBubble("❌ Error: " + (data.error.message || "Unknown"), "bot"); return; }
       answer = data?.choices?.[0]?.message?.content || "Tidak ada jawaban.";
     } else {
-      const contents = [{role:"user", parts:[{text:systemPrompt + "\n\nMulai percakapan."}]}];
+      const contents = [{role:"user", parts:[{text:systemPrompt + "\n\nMulai."}]}];
       for(const m of chat.messages) contents.push({role: m.role === "user" ? "user" : "model", parts:[{text:m.text}]});
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,{
         method:"POST", headers:{"Content-Type":"application/json"},
@@ -712,19 +850,16 @@ async function sendMessage(){
       if(data.error){ addBubble("❌ Error: " + data.error.message, "bot"); return; }
       answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Tidak ada jawaban.";
     }
-    
     chat.messages.push({role:"model", text:answer});
     saveChats();
     addBubble(answer, "bot");
   }catch(err){
     loading.remove();
-    addBubble("❌ Gagal terhubung: " + err.message, "bot");
+    addBubble("❌ Gagal: " + err.message, "bot");
   }finally{
     sendBtn.disabled = false;
   }
 }
-
-// Autoresize
 function autoresize(){
   const t = document.getElementById("text");
   t.style.height = "auto";
@@ -732,11 +867,7 @@ function autoresize(){
 }
 document.getElementById("text").addEventListener("input", autoresize);
 document.getElementById("text").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
-
-// Attach religion buttons
-document.querySelectorAll(".religion-btn").forEach(btn => {
-  btn.addEventListener("click", ()=>setReligion(btn.dataset.religion));
-});
+document.querySelectorAll(".religion-btn").forEach(btn => { btn.addEventListener("click", ()=>setReligion(btn.dataset.religion)); });
 
 // Initialize
 checkApiKey();
@@ -745,8 +876,6 @@ updateReligionUI();
 updateBadge();
 renderHistory();
 renderChat();
-
-// Sync mode select with current chat
 const modeSelect = document.getElementById("modeSelect");
 const currentChat = chats[activeId];
 if(currentChat){
